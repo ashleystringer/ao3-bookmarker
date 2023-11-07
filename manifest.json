@@ -3,10 +3,13 @@
     "name": "AO3 Bookmarker",
     "description": ".",
     "version": "1.0.0",
-    "icons": {
-      "16": "",
-      "128": ""
+    "action": {
+      "default_popup": "popup/popup.html"
     },
+    "host_permissions": [
+      "https://archiveofourown.org/*"       
+    ],
+    "permissions": ["storage", "activeTab", "scripting"],
     "background": {
       "service_worker": "service-worker.js",
       "type": "module"
@@ -16,6 +19,10 @@
       {
         "matches": ["https://archiveofourown.org/works/*"],
         "js": ["content.js"]
+      },
+      {
+        "matches": ["https://archiveofourown.org/works/*"],
+        "js": ["average-time-content.js"]
       }
     ]
   }

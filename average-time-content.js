@@ -1,27 +1,35 @@
-const article = document.querySelector("article");
-const workskin = document.querySelector("#workskin");
+const averageReadingTime = async () => {
+  const { isReadingTimeOn } = await chrome.storage.local.get("isReadingTimeOn");
 
-if (workskin) {
-  const text = workskin.querySelector("#chapters").textContent;
+  if (isReadingTimeOn) {
+    const article = document.querySelector("article");
+    const workskin = document.querySelector("#workskin");
 
-  const wordMatchRegExp = /[^\s]+/g;
-  const words = text.matchAll(wordMatchRegExp);
+    if (workskin) {
+      const text = workskin.querySelector("#chapters").textContent;
 
-  const wordCount = [...words].length;
+      const wordMatchRegExp = /[^\s]+/g;
+      const words = text.matchAll(wordMatchRegExp);
 
-  const readingTimeMax = Math.round(wordCount / 200);
-  const readingTimeMin = Math.round(wordCount / 250);
+      const wordCount = [...words].length;
 
-  console.log(
-    `readingTimeMax: ${readingTimeMax}, readingTimeMin: ${readingTimeMin}`
-  );
+      const readingTimeMax = Math.round(wordCount / 200);
+      const readingTimeMin = Math.round(wordCount / 250);
 
-  const badge = document.createElement("p");
-  badge.style.color = "#808080";
-  badge.style.fontStyle = "italic";
-  badge.innerText = `⏱️${readingTimeMin} - ${readingTimeMax} min read`;
+      console.log(
+        `readingTimeMax: ${readingTimeMax}, readingTimeMin: ${readingTimeMin}`
+      );
 
-  const bylineHeading = workskin.querySelector(".byline");
+      const badge = document.createElement("p");
+      badge.style.color = "#808080";
+      badge.style.fontStyle = "italic";
+      badge.innerText = `⏱️${readingTimeMin} - ${readingTimeMax} min read`;
 
-  bylineHeading.insertAdjacentElement("afterend", badge);
-}
+      const bylineHeading = workskin.querySelector(".byline");
+
+      bylineHeading.insertAdjacentElement("afterend", badge);
+    }
+  }
+};
+
+averageReadingTime();

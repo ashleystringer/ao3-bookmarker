@@ -23,6 +23,10 @@
       {
         "matches": ["https://archiveofourown.org/works/*"],
         "js": ["average-time-content.js"]
+      },
+      {
+        "matches": ["https://archiveofourown.org/works/*"],
+        "js": ["bookmarker-content.js"]
       }
     ],
     "commands": {

@@ -15,6 +15,13 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
   }
 });
 
+chrome.commands.onCommand.addListener(command => {
+  console.log("chrome.commands.onCommand");
+  if (command === "toggle-popup") {
+    chrome.browserAction.openPopup();
+  }
+});
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.greeting === "popupEvent") {
     console.log("popupEvent");

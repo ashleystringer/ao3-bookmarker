@@ -28,23 +28,65 @@ const bookmarker = () => {
       console.log("Single element");
       //place the smallest number in the first index
       //place the largest number in the second index
+      //console.log(selectionObject.innerText);
+      const parentHTML = parentNode.innerHTML;
+
+      const spanElement = `<span class='bookmarker'>${parentHTML.slice(
+        selectionObject.anchorOffset,
+        selectionObject.focusOffset
+      )}</span>`;
+      const beforeSpan = parentHTML.slice(0, selectionObject.anchorOffset);
+      const afterSpan = parentHTML.slice(
+        selectionObject.focusOffset,
+        parentHTML.length
+      );
+
+      console.log(beforeSpan);
+      console.log(spanElement);
+      console.log(afterSpan);
+
+      beforeSpan.concat(spanElement);
+      const alteredHTML = beforeSpan.concat(spanElement, afterSpan);
+      parentNode.innerHTML = alteredHTML;
     } else {
       const parentNode = anchorNode.parentNode;
-      parentNode.childNodes.forEach(child => {
-        console.log(child);
-        /*
-          - find the total length of each child node's inner text
-          - determine which child nodes are affected by the selection object's location
-          - find the absolute position of the selection object
-        */
-      });
+      console.log(parentNode.childNodes);
+
+      if (
+        anchorNode.previousSibling == focusNode.previousSibling &&
+        anchorNode.nextSibling == focusNode.nextSibling
+      ) {
+        console.log("testing");
+      } else {
+        findSelectionLocation(selectionObject);
+      }
     }
   }
 };
 
 const findSelectionLocation = selectionObject => {
   /*
+          - find the total length of each child node's inner text
+          - determine which child nodes are affected by the selection object's location
+          - find the absolute position of the selection object
+        */
+  const parentNode = selectionObject.anchorNode.parentNode;
+  const childNodeLengthsObj = {};
+  parentNode.childNodes.forEach((child, index) => {
+    if (child.nodeName !== "BR" && child.nodeName !== "#text") {
+      console.log(child.nodeName);
+      childNodeLengthsObj[child.className] = child.innerText.length;
+    } else if (child.nodeName !== "BR" && child.nodeName == "#text") {
+      childNodeLengthsObj[`TEXT-${index}`] = child.length;
+    } else {
+      childNodeLengthsObj[child.className] = 0;
+    }
+  });
+  console.log(selectionObject);
+  console.log(childNodeLengthsObj);
 
+  /*
+  
   */
 };
 
@@ -87,9 +129,9 @@ const removeIds = () => {
   const userstuff = chapter.querySelector(".userstuff.module");
 
   userstuff.childNodes.forEach((child, index) => {
-    console.log(`child.nodeName: ${child.nodeName}, 
+    /*console.log(`child.nodeName: ${child.nodeName}, 
     number of child nodes: ${child.childNodes.length} 
-    index: ${index}`);
+    index: ${index}`);*/
     if (child.nodeName !== "#text") {
       /*console.log(`child.nodeName: ${child.nodeName}, 
       number of child nodes: ${child.childNodes.length} 
@@ -109,7 +151,6 @@ const removeIds = () => {
       }
     }
   });
-
   console.log(userstuff);
 };
 
@@ -118,5 +159,5 @@ addIds();
 const chapter = document.querySelector("#workskin").querySelector("#chapters");
 chapter.addEventListener("click", e => {
   console.log("workskin");
-  //bookmarker();
+  bookmarker();
 });

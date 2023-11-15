@@ -18,15 +18,8 @@
     "content_scripts": [
       {
         "matches": ["https://archiveofourown.org/works/*"],
-        "js": ["content.js"]
-      },
-      {
-        "matches": ["https://archiveofourown.org/works/*"],
-        "js": ["average-time-content.js"]
-      },
-      {
-        "matches": ["https://archiveofourown.org/works/*"],
-        "js": ["bookmarker-content.js"]
+        "js": ["content.js", "average-time-content.js", "bookmarker-content.js"],
+        "css": ["bookmarker.css"]
       }
     ],
     "commands": {

@@ -7,7 +7,7 @@ console.log("service-worker.js");
 */
 
 // Save default API suggestions
-chrome.runtime.onInstalled.addListener(({ reason }) => {
+chrome.runtime.onInstalled.addListener(async ({ reason }) => {
   if (reason === "install") {
     chrome.storage.local.set({
       isReadingTimeOn: false

@@ -18,12 +18,6 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   }
 });
 
-/*const getReadingTimeBtnText = async () => {
-  const { isReadingTimeOn } = await chrome.storage.local.get("isReadingTimeOn");
-
-  return "Hello.";
-};*/
-
 const getReadingTimeBtnText = async () => {
   const { isReadingTimeOn } = await chrome.storage.local.get("isReadingTimeOn");
 

@@ -1,3 +1,18 @@
+.selectedText {
+    position: relative;
+}
+
+.tooltip {
+    position: absolute;
+    width: 55px;
+    height: 55px;
+    display: block;
+}
+
+.tooltip .active {
+    visibility: visible;
+}
+
 .bookmarker {
     background-color: rgb(243, 144, 132);
 }

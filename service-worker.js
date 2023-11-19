@@ -1,11 +1,5 @@
 console.log("service-worker.js");
 
-/*
-  Working idea - 
-    * inject the average-time-content file using
-    * * isReadingTimeOn in local storage
-*/
-
 // Save default API suggestions
 chrome.runtime.onInstalled.addListener(async ({ reason }) => {
   if (reason === "install") {

@@ -1,108 +1,100 @@
-const tooltip = () => {
-  const selectionObject = document.getSelection();
-  console.log(selectionObject);
-
+const tooltip = (actionType) => {
   const tooltip = document.createElement("div");
   tooltip.classList.add("tooltip");
   const btn = document.createElement("button");
-  btn.innerText = "Add Bookmark";
-  btn.addEventListener("click", e => {
-    console.log("Button test");
-  });
+
+  btn.innerText = actionType === "add-bookmark" ? "Add Bookmark" : "Remove Bookmark";
+
+  if(!btn.hasClickListener){
+    btn.addEventListener("click", e => {
+      console.log("Button test");
+
+      if(actionType === "add-bookmark"){
+        addBookmark(e);
+      }else{
+        removeBookmark(e);
+      }
+    });
+    btn.hasClickListener = true;
+  }
+
   tooltip.appendChild(btn);
 
-  const range = document.createRange();
+  return tooltip;
+}
 
-
-  //ISSUE - I NEED TO MAKE THIS WORK FOR CHROME STORAGE
-  if(selectionObject.anchorOffset < selectionObject.focusOffset){
-    range.setStart(selectionObject.anchorNode, selectionObject.anchorOffset);
-    range.setEnd(selectionObject.focusNode, selectionObject.focusOffset);
-  }else{
-    range.setStart(selectionObject.focusNode, selectionObject.focusOffset);
-    range.setEnd(selectionObject.anchorNode, selectionObject.anchorOffset);
-  }
-  //
-
-  if(!range.collapsed){
-    console.log("range not collapsed");
-    const spanElement = document.createElement("span");
-    spanElement.className = "selectedText";
-  
-    spanElement.appendChild(range.extractContents());
-
-    range.insertNode(spanElement);
-    range.insertNode(tooltip);
-  }
-};
-
-const bookmarker = () => {
+const handleTextSelection = () => { 
   const selectionObject = document.getSelection();
-
   const anchorNode = selectionObject.anchorNode;
-  const anchorOffset = selectionObject.anchorOffset;
   const focusNode = selectionObject.focusNode;
-  const focusOffset = selectionObject.focusOffset;
-
-  const parentNode = anchorNode.parentNode.innerText;
 
   console.log(selectionObject);
-  console.log(parentNode);
-  console.log(parentNode.length);
-  console.log(anchorNode.parentNode);
-  console.log(focusNode.parentNode);
-  console.log(anchorNode);
-  console.log(focusNode);
+  const tooltipElement = tooltip("add-bookmark");
+
+  const range = document.createRange();
 
   const commonAncestorNode = selectionObject.getRangeAt(0).commonAncestorContainer;
   console.log(commonAncestorNode.contains(focusNode));
 
   if(commonAncestorNode.nodeName === "P" || commonAncestorNode.contains(anchorNode) && commonAncestorNode.contains(focusNode)){
-    insertBookmarkSpan(selectionObject);
+  
+    //ISSUE - I NEED TO MAKE THIS WORK FOR CHROME STORAGE
+    if(selectionObject.anchorOffset < selectionObject.focusOffset){
+      range.setStart(selectionObject.anchorNode, selectionObject.anchorOffset);
+      range.setEnd(selectionObject.focusNode, selectionObject.focusOffset);
+    }else{
+      range.setStart(selectionObject.focusNode, selectionObject.focusOffset);
+      range.setEnd(selectionObject.anchorNode, selectionObject.anchorOffset);
+    }
+    //
+  
+    if(!range.collapsed){
+      console.log("range not collapsed");
+      const spanElement = document.createElement("span");
+      spanElement.className = "selectedText";
+    
+      spanElement.appendChild(range.extractContents());
+  
+      range.insertNode(spanElement);
+      range.insertNode(tooltipElement); //tooltip created in other method
+    }
   }
 
 };
 
-const insertBookmarkSpan = (selectionObject) => {
-  const range = document.createRange();
+const handleBookmarkSelection = (e) => {
+  console.log("handleBookmarkSelection");
 
-  console.log(selectionObject.anchorOffset);
-  console.log(selectionObject.focusOffset);
+  const tooltipElement = tooltip("remove-bookmark");
 
-  console.log(selectionObject.toString());
+  const bookmarkedElement = e.target;
+  bookmarkedElement.appendChild(tooltipElement);
+}
 
+const addBookmark = (e) => {
+  const selectionObject = document.getSelection();
+  const text = document.querySelector(".selectedText");
+  text.classList.remove("selectedText");
+  text.classList.add("bookmarker");
+  console.log(text);
+
+  console.log(selectionObject);
+
+  text.addEventListener("click", e => { handleBookmarkSelection(e) });
+
+  const parentNode = text.parentNode;
+  const parentClass = text.parentNode.className;
+  const tooltip = document.querySelector(`.${parentClass}`).querySelector(".tooltip");
+  console.log(parentClass);
+  console.log(tooltip);
+
+  parentNode.removeChild(tooltip);
   
-  const selectionContent = {
-    anchorNode: selectionObject.anchorNode.textContent,
-    anchorOffset: selectionObject.anchorOffset,
-    focusNode: selectionObject.focusNode.textContent,
-    focusOffset: selectionObject.focusOffset,
-    toString: selectionObject.toString()
-  };
-  
-  //chrome.storage.local.set({bookmarkedTextByPage: selectionContent});
+}
 
-  //ISSUE - I NEED TO MAKE THIS WORK FOR CHROME STORAGE
-  if(selectionObject.anchorOffset < selectionObject.focusOffset){
-    range.setStart(selectionObject.anchorNode, selectionObject.anchorOffset);
-    range.setEnd(selectionObject.focusNode, selectionObject.focusOffset);
-  }else{
-    range.setStart(selectionObject.focusNode, selectionObject.focusOffset);
-    range.setEnd(selectionObject.anchorNode, selectionObject.anchorOffset);
-  }
-  //
-
-  if(!range.collapsed){
-    console.log("range not collapsed");
-    const spanElement = document.createElement("span");
-    spanElement.className = "bookmarker";
-  
-    spanElement.appendChild(range.extractContents());
-
-    range.insertNode(spanElement);
-  }
-
-};
+const removeBookmark = (e) => {
+ console.log("removeBookmark");
+}
 
 const removeBookmarkSpan = () => {
 
@@ -128,8 +120,7 @@ const removeBookmarkSpan = () => {
   */
 
   
-  range.insertNode(bookmarkedTextNode)
-  
+  range.insertNode(bookmarkedTextNode);
 
 };
 
@@ -141,21 +132,13 @@ const addIds = () => {
   console.log(userstuff);
 
   userstuff.childNodes.forEach((child, index) => {
-    /*console.log(`child.nodeName: ${child.nodeName}, 
-    number of child nodes: ${child.childNodes.length} 
-    index: ${index}`);*/
     if (child.nodeName !== "#text") {
-      /*console.log(`child.nodeName: ${child.nodeName}, 
-      number of child nodes: ${child.childNodes.length} 
-      index: ${index}`);*/
       child.classList.add(`${child.nodeName}-${index}`);
       if (child.childNodes.length !== 0) {
         const childNodes = child.childNodes;
         let childIndex = 0;
         childNodes.forEach(childNode => {
           if (childNode.nodeName !== "#text") {
-            //console.log(`child.nodeName: ${childNode.nodeName}`);
-            //console.log(childNode);
             childIndex++;
             childNode.classList.add(`${childNode.nodeName}-${childIndex}`);
           }
@@ -172,21 +155,13 @@ const removeIds = () => {
   const userstuff = chapter.querySelector(".userstuff.module");
 
   userstuff.childNodes.forEach((child, index) => {
-    /*console.log(`child.nodeName: ${child.nodeName}, 
-    number of child nodes: ${child.childNodes.length} 
-    index: ${index}`);*/
     if (child.nodeName !== "#text") {
-      /*console.log(`child.nodeName: ${child.nodeName}, 
-      number of child nodes: ${child.childNodes.length} 
-      index: ${index}`);*/
       child.classList.remove(`${child.nodeName}-${index}`);
       if (child.childNodes.length !== 0) {
         const childNodes = child.childNodes;
         let childIndex = 0;
         childNodes.forEach(childNode => {
           if (childNode.nodeName !== "#text") {
-            //console.log(`child.nodeName: ${childNode.nodeName}`);
-            //console.log(childNode);
             childIndex++;
             childNode.classList.remove(`${childNode.nodeName}-${childIndex}`);
           }
@@ -202,6 +177,14 @@ addIds();
 const chapter = document.querySelector("#workskin").querySelector("#chapters");
 chapter.addEventListener("click", e => {
   console.log("workskin");
-  tooltip();
-  bookmarker();
+  handleTextSelection();
 });
+
+/*
+const checkIfBookmarkExists = async () => {
+  const { bookmarkByPage } = await chrome.storage.local.get("bookmarkByPage");
+  if(bookmarkByPage){
+    
+  }
+}
+*/

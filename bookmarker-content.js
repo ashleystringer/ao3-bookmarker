@@ -78,7 +78,8 @@ const addBookmark = (e) => {
   text.classList.add("bookmarker");
   console.log(text);
 
-  console.log(selectionObject);
+  console.log(selectionObject.anchorNode);
+  console.log(selectionObject.focusNode);
 
   text.addEventListener("click", e => { handleBookmarkSelection(e) });
 
@@ -89,6 +90,22 @@ const addBookmark = (e) => {
   console.log(tooltip);
 
   parentNode.removeChild(tooltip);
+
+  const childNodesArray = Array.from(parentNode.childNodes);
+  const anchorIndex = childNodesArray.indexOf(selectionObject.anchorNode);
+  const focusIndex = childNodesArray.indexOf(selectionObject.focusNode);
+
+  const bookmarkByPage = {
+    page: window.location.href,
+    parentClass: parentClass,
+    anchorOffset: selectionObject.anchorOffset,
+    anchorIndex: anchorIndex,
+    focusOffset: selectionObject.focusOffset,
+    focusIndex: focusIndex,
+    bookmarkedText: text.textContent
+  }
+
+  chrome.storage.local.set({bookmarkByPage: bookmarkByPage});
   
 }
 
@@ -123,6 +140,38 @@ const removeBookmarkSpan = () => {
   range.insertNode(bookmarkedTextNode);
 
 };
+
+const displayBookmark = (bookmarkByPage) => {
+  console.log("bookmarkByPage");
+
+  const range = document.createRange();
+
+  // Get the parent node of the selection
+  const parentNode = document.querySelector(`.${bookmarkByPage.parentClass}`);
+
+  // Get the first and last child elements within the selection
+  const startElement = parentNode.childNodes[bookmarkByPage.anchorIndex];
+  const endElement = parentNode.childNodes[bookmarkByPage.focusIndex];
+
+  console.log(parentNode.childNodes[0]);
+  console.log(bookmarkByPage.focusIndex);
+
+  // Set the start and end of the range to include all child elements within the selection
+  range.setStartBefore(startElement);
+  range.setEndAfter(endElement);
+
+  if(!range.collapsed){
+    console.log("range not collapsed");
+    const spanElement = document.createElement("span");
+    spanElement.className = "bookmarker";
+  
+    spanElement.appendChild(range.extractContents());
+
+    spanElement.addEventListener("click", e => {handleBookmarkSelection(e)})
+
+    range.insertNode(spanElement);
+  }
+}
 
 const addIds = () => {
   const chapter = document
@@ -172,19 +221,20 @@ const removeIds = () => {
   console.log(userstuff);
 };
 
+const checkIfBookmarkExists = async () => {
+  const { bookmarkByPage } = await chrome.storage.local.get("bookmarkByPage");
+  console.log("bookmarkByPage");
+  if(bookmarkByPage){
+    //display the bookmark
+    displayBookmark(bookmarkByPage);
+  }
+}
+
 addIds();
+checkIfBookmarkExists();
 
 const chapter = document.querySelector("#workskin").querySelector("#chapters");
 chapter.addEventListener("click", e => {
   console.log("workskin");
   handleTextSelection();
 });
-
-/*
-const checkIfBookmarkExists = async () => {
-  const { bookmarkByPage } = await chrome.storage.local.get("bookmarkByPage");
-  if(bookmarkByPage){
-    
-  }
-}
-*/

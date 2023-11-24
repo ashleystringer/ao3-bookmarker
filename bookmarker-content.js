@@ -3,10 +3,11 @@ const tooltip = (actionType) => {
   tooltip.classList.add("tooltip");
   const btn = document.createElement("button");
 
-  btn.innerText = actionType === "add-bookmark" ? "Add Bookmark" : "Remove Bookmark";
+  btn.innerText = actionType === "add-bookmark" ? "Add Bookmark" : "Remove Bookmark?";
 
   if(!btn.hasClickListener){
     btn.addEventListener("click", e => {
+      e.stopPropagation();
       console.log("Button test");
 
       if(actionType === "add-bookmark"){
@@ -21,6 +22,12 @@ const tooltip = (actionType) => {
   tooltip.appendChild(btn);
 
   return tooltip;
+}
+
+const getChapterFromURL = (url) => {
+  //https://archiveofourown.org/works/25286593/chapters/61307047
+
+  //
 }
 
 const handleTextSelection = () => { 
@@ -38,7 +45,6 @@ const handleTextSelection = () => {
 
   if(commonAncestorNode.nodeName === "P" || commonAncestorNode.contains(anchorNode) && commonAncestorNode.contains(focusNode)){
   
-    //ISSUE - I NEED TO MAKE THIS WORK FOR CHROME STORAGE
     if(selectionObject.anchorOffset < selectionObject.focusOffset){
       range.setStart(selectionObject.anchorNode, selectionObject.anchorOffset);
       range.setEnd(selectionObject.focusNode, selectionObject.focusOffset);
@@ -46,7 +52,6 @@ const handleTextSelection = () => {
       range.setStart(selectionObject.focusNode, selectionObject.focusOffset);
       range.setEnd(selectionObject.anchorNode, selectionObject.anchorOffset);
     }
-    //
   
     if(!range.collapsed){
       console.log("range not collapsed");
@@ -105,41 +110,33 @@ const addBookmark = (e) => {
     bookmarkedText: text.textContent
   }
 
+  console.log(window.location.href);
+
   chrome.storage.local.set({bookmarkByPage: bookmarkByPage});
   
 }
 
 const removeBookmark = (e) => {
- console.log("removeBookmark");
-}
 
-const removeBookmarkSpan = () => {
+  const bookmarkedElement = e.target.closest(".bookmarker");
 
-  const bookmarked = document.querySelector(".bookmarker");
-  const bookmarkedText = bookmarked.textContent;
+  const tooltip = bookmarkedElement.querySelector(".tooltip");
+  bookmarkedElement.removeChild(tooltip);
 
-  const bookmarkedTextNode = document.createTextNode(bookmarkedText);
-  
-  const range = document.createRange();
+  const originalText = bookmarkedElement.innerHTML;
 
-  //range.selectNode(bookmarked); //?
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = originalText;
 
-  //ISSUE - I NEED TO FIND OUT HOW TO GET THE SELECTION OBJECT DATA
-
-  /*
-  if(selectionObject.anchorOffset < selectionObject.focusOffset){
-    range.setStart(selectionObject.anchorNode, selectionObject.anchorOffset);
-    range.setEnd(selectionObject.focusNode, selectionObject.focusOffset);
-  }else{
-    range.setStart(selectionObject.focusNode, selectionObject.focusOffset);
-    range.setEnd(selectionObject.anchorNode, selectionObject.anchorOffset);
+  while (tempDiv.firstChild) {
+    bookmarkedElement.parentNode.insertBefore(tempDiv.firstChild, bookmarkedElement);
   }
-  */
 
-  
-  range.insertNode(bookmarkedTextNode);
+  bookmarkedElement.parentNode.removeChild(bookmarkedElement);
 
-};
+  chrome.storage.local.remove("bookmarkByPage");
+
+}
 
 const displayBookmark = (bookmarkByPage) => {
   console.log("bookmarkByPage");

@@ -25,9 +25,18 @@ const tooltip = (actionType) => {
 }
 
 const getChapterFromURL = (url) => {
-  //https://archiveofourown.org/works/25286593/chapters/61307047
+  const regex = /works\/(\d+).*chapters\/(\d+)/;
 
-  //
+  const match = url.match(regex);
+
+  if (match) {
+    const workNumber = match[1];
+    const chapterNumber = match[2];
+
+    return { workNumber, chapterNumber };
+  }
+
+  return null;
 }
 
 const handleTextSelection = () => { 
@@ -81,18 +90,12 @@ const addBookmark = (e) => {
   const text = document.querySelector(".selectedText");
   text.classList.remove("selectedText");
   text.classList.add("bookmarker");
-  console.log(text);
-
-  console.log(selectionObject.anchorNode);
-  console.log(selectionObject.focusNode);
 
   text.addEventListener("click", e => { handleBookmarkSelection(e) });
 
   const parentNode = text.parentNode;
   const parentClass = text.parentNode.className;
   const tooltip = document.querySelector(`.${parentClass}`).querySelector(".tooltip");
-  console.log(parentClass);
-  console.log(tooltip);
 
   parentNode.removeChild(tooltip);
 
@@ -100,8 +103,11 @@ const addBookmark = (e) => {
   const anchorIndex = childNodesArray.indexOf(selectionObject.anchorNode);
   const focusIndex = childNodesArray.indexOf(selectionObject.focusNode);
 
+  const { workNumber, chapterNumber } = getChapterFromURL(window.location.href);
+
   const bookmarkByPage = {
-    page: window.location.href,
+    workNumber: workNumber,
+    chapterNumber: chapterNumber,
     parentClass: parentClass,
     anchorOffset: selectionObject.anchorOffset,
     anchorIndex: anchorIndex,
@@ -109,11 +115,16 @@ const addBookmark = (e) => {
     focusIndex: focusIndex,
     bookmarkedText: text.textContent
   }
-
-  console.log(window.location.href);
-
-  chrome.storage.local.set({bookmarkByPage: bookmarkByPage});
   
+  chrome.storage.local.get("bookmarks", (result) => {
+    let bookmarks = result.bookmarks || {};
+
+    bookmarks[workNumber] = bookmarkByPage;
+  
+    chrome.storage.local.set({ bookmarks: bookmarks });
+  });
+  
+
 }
 
 const removeBookmark = (e) => {
@@ -133,8 +144,16 @@ const removeBookmark = (e) => {
   }
 
   bookmarkedElement.parentNode.removeChild(bookmarkedElement);
+  
+  chrome.storage.local.get("bookmarks", (result) => {
+    const { workNumber, chapterNumber } = getChapterFromURL(window.location.href);
 
-  chrome.storage.local.remove("bookmarkByPage");
+    let bookmarks = result.bookmarks || {};
+
+    delete bookmarks[workNumber];
+
+    chrome.storage.local.set(result);
+  });
 
 }
 
@@ -219,10 +238,13 @@ const removeIds = () => {
 };
 
 const checkIfBookmarkExists = async () => {
-  const { bookmarkByPage } = await chrome.storage.local.get("bookmarkByPage");
-  console.log("bookmarkByPage");
-  if(bookmarkByPage){
-    //display the bookmark
+  const { bookmarks } = await chrome.storage.local.get("bookmarks");
+
+  const { workNumber, chapterNumber } = getChapterFromURL(window.location.href);
+  const bookmarkByPage = bookmarks[workNumber];
+
+  if(bookmarkByPage && bookmarkByPage?.chapterNumber === chapterNumber){  
+    console.log(bookmarkByPage);
     displayBookmark(bookmarkByPage);
   }
 }
@@ -231,7 +253,7 @@ addIds();
 checkIfBookmarkExists();
 
 const chapter = document.querySelector("#workskin").querySelector("#chapters");
-chapter.addEventListener("click", e => {
+chapter.addEventListener("mouseup", e => {
   console.log("workskin");
   handleTextSelection();
 });

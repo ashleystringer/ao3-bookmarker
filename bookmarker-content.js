@@ -89,7 +89,7 @@ const addBookmark = (e) => {
   const selectionObject = document.getSelection();
   const text = document.querySelector(".selectedText");
   text.classList.remove("selectedText");
-  text.classList.add("bookmarker");
+  text.classList.add("bookmarkedText");
 
   text.addEventListener("click", e => { handleBookmarkSelection(e) });
 
@@ -129,7 +129,7 @@ const addBookmark = (e) => {
 
 const removeBookmark = (e) => {
 
-  const bookmarkedElement = e.target.closest(".bookmarker");
+  const bookmarkedElement = e.target.closest(".bookmarkedText");
 
   const tooltip = bookmarkedElement.querySelector(".tooltip");
   bookmarkedElement.removeChild(tooltip);
@@ -179,7 +179,7 @@ const displayBookmark = (bookmarkByPage) => {
   if(!range.collapsed){
     console.log("range not collapsed");
     const spanElement = document.createElement("span");
-    spanElement.className = "bookmarker";
+    spanElement.className = "bookmarkedText";
   
     spanElement.appendChild(range.extractContents());
 
@@ -253,7 +253,21 @@ addIds();
 checkIfBookmarkExists();
 
 const chapter = document.querySelector("#workskin").querySelector("#chapters");
-chapter.addEventListener("mouseup", e => {
-  console.log("workskin");
-  handleTextSelection();
+
+chapter.addEventListener("mouseup", (e) => {
+  console.log("on mouse up");
+  const selectedTextElement = document.querySelector(".selectedText");
+  const bookmarkedText = document.querySelector(".bookmarkedText");
+  const tooltipElement = document.querySelector(".tooltip");
+
+  if(selectedTextElement && !selectedTextElement.contains(e.target) && !tooltipElement.contains(e.target)){
+    console.log("selectedTextElement && !selectedTextElement.contains(e.target)");
+    selectedTextElement.classList.remove("selectedText");
+    selectedTextElement.parentNode.removeChild(tooltipElement);
+  }else if(bookmarkedText && !bookmarkedText.contains(e.target) && !tooltipElement.contains(e.target)){
+    bookmarkedText.removeChild(tooltipElement);
+  }else{
+    console.log("workskin");
+    handleTextSelection();    
+  }
 });

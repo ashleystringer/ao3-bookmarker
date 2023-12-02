@@ -1,12 +1,15 @@
+//!!!!!!!!!!!!
 const tooltip = (actionType) => {
   const tooltip = document.createElement("div");
   tooltip.classList.add("tooltip");
-  const btn = document.createElement("button");
 
-  btn.innerText = actionType === "add-bookmark" ? "Add Bookmark" : "Remove Bookmark?";
+  const btnDiv = document.createElement("button");
+  btnDiv.classList.add("btn");
 
-  if(!btn.hasClickListener){
-    btn.addEventListener("click", e => {
+  btnDiv.innerText = actionType === "add-bookmark" ? "+" : "-";
+
+  if(!btnDiv.hasClickListener){
+    btnDiv.addEventListener("click", e => {
       e.stopPropagation();
       console.log("Button test");
 
@@ -16,14 +19,16 @@ const tooltip = (actionType) => {
         removeBookmark(e);
       }
     });
-    btn.hasClickListener = true;
+    btnDiv.hasClickListener = true;
   }
 
-  tooltip.appendChild(btn);
+  tooltip.appendChild(btnDiv);
 
   return tooltip;
 }
+//!!!!!!!!!!!!
 
+//!!!!!!!!!!!!
 const getChapterFromURL = (url) => {
   const regex = /works\/(\d+).*chapters\/(\d+)/;
 
@@ -38,6 +43,7 @@ const getChapterFromURL = (url) => {
 
   return null;
 }
+//!!!!!!!!!!!!
 
 const handleTextSelection = () => { 
   const selectionObject = document.getSelection();
@@ -50,7 +56,7 @@ const handleTextSelection = () => {
   const range = document.createRange();
 
   const commonAncestorNode = selectionObject.getRangeAt(0).commonAncestorContainer;
-  console.log(commonAncestorNode.contains(focusNode));
+  console.log(commonAncestorNode);
 
   if(commonAncestorNode.nodeName === "P" || commonAncestorNode.contains(anchorNode) && commonAncestorNode.contains(focusNode)){
   
@@ -61,7 +67,9 @@ const handleTextSelection = () => {
       range.setStart(selectionObject.focusNode, selectionObject.focusOffset);
       range.setEnd(selectionObject.anchorNode, selectionObject.anchorOffset);
     }
-  
+    console.log(selectionObject.isCollapsed);
+    console.log(range);
+    console.log(range.toString());
     if(!range.collapsed){
       console.log("range not collapsed");
       const spanElement = document.createElement("span");
@@ -73,7 +81,6 @@ const handleTextSelection = () => {
       range.insertNode(tooltipElement); //tooltip created in other method
     }
   }
-
 };
 
 const handleBookmarkSelection = (e) => {
@@ -99,11 +106,20 @@ const addBookmark = (e) => {
 
   parentNode.removeChild(tooltip);
 
+  console.log(selectionObject);
   const childNodesArray = Array.from(parentNode.childNodes);
+  console.log(childNodesArray);
   const anchorIndex = childNodesArray.indexOf(selectionObject.anchorNode);
   const focusIndex = childNodesArray.indexOf(selectionObject.focusNode);
 
   const { workNumber, chapterNumber } = getChapterFromURL(window.location.href);
+
+  console.log(anchorIndex);
+  console.log(selectionObject.anchorNode);
+  console.log(childNodesArray.indexOf(selectionObject.anchorNode));
+  console.log(focusIndex);
+  console.log(selectionObject.focusNode);
+  console.log(childNodesArray.indexOf(selectionObject.focusNode));
 
   const bookmarkByPage = {
     workNumber: workNumber,
@@ -115,6 +131,8 @@ const addBookmark = (e) => {
     focusIndex: focusIndex,
     bookmarkedText: text.textContent
   }
+
+  console.log(bookmarkByPage);
   
   chrome.storage.local.get("bookmarks", (result) => {
     let bookmarks = result.bookmarks || {};
@@ -189,12 +207,13 @@ const displayBookmark = (bookmarkByPage) => {
   }
 }
 
+//!!!!!!!!!!!!
 const addIds = () => {
   const chapter = document
     .querySelector("#workskin")
     .querySelector("#chapters");
   const userstuff = chapter.querySelector(".userstuff.module");
-  console.log(userstuff);
+  //console.log(userstuff);
 
   userstuff.childNodes.forEach((child, index) => {
     if (child.nodeName !== "#text") {
@@ -212,7 +231,9 @@ const addIds = () => {
     }
   });
 };
+//!!!!!!!!!!!!
 
+//!!!!!!!!!!!!
 const removeIds = () => {
   const chapter = document
     .querySelector("#workskin")
@@ -236,6 +257,7 @@ const removeIds = () => {
   });
   console.log(userstuff);
 };
+//!!!!!!!!!!!!
 
 const checkIfBookmarkExists = async () => {
   const { bookmarks } = await chrome.storage.local.get("bookmarks");
@@ -255,7 +277,7 @@ checkIfBookmarkExists();
 const chapter = document.querySelector("#workskin").querySelector("#chapters");
 
 chapter.addEventListener("mouseup", (e) => {
-  console.log("on mouse up");
+  //console.log("on mouse up");
   const selectedTextElement = document.querySelector(".selectedText");
   const bookmarkedText = document.querySelector(".bookmarkedText");
   const tooltipElement = document.querySelector(".tooltip");
@@ -267,7 +289,7 @@ chapter.addEventListener("mouseup", (e) => {
   }else if(bookmarkedText && !bookmarkedText.contains(e.target) && !tooltipElement.contains(e.target)){
     bookmarkedText.removeChild(tooltipElement);
   }else{
-    console.log("workskin");
+    //console.log("workskin");
     handleTextSelection();    
   }
 });

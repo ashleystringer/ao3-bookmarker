@@ -1,27 +1,20 @@
-const btnContainer = document.querySelector(".btn-container");
-
-const btn = document.createElement("button");
-
-const toggleReadingTime = async () => {
-  const { isReadingTimeOn } = await chrome.storage.local.get("isReadingTimeOn");
-
-  if (isReadingTimeOn == true) {
-    btn.innerText = "Turn Reading Time OFF";
-  } else {
-    btn.innerText = "Turn Reading Time ON";
-  }
-};
+const readingTimeCheckbox = document.querySelector(".reading-time-checkbox");
+const readingTimeCheckboxLabel = document.querySelector(".reading-time-checkbox-label");
 
 window.onload = async e => {
-  toggleReadingTime();
+  toggleReadingTimeCheckbox();
 };
 
-btn.addEventListener("click", async () => {
-  toggleReadingTime(); //not sure why this isn't working
+const toggleReadingTimeCheckbox = async () => {
+  const { isReadingTimeOn } = await chrome.storage.local.get("isReadingTimeOn");
+
+  readingTimeCheckbox.checked = isReadingTimeOn;
+}
+
+readingTimeCheckbox.addEventListener("change", async (e) => {  
   await chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
     const activeTab = tabs[0];
     chrome.tabs.sendMessage(activeTab.id, { event: "popupEvent" });
   });
 });
 
-btnContainer.appendChild(btn);

@@ -1,2 +1,3 @@
 TASKS
-* 
+* Fix the bug that comes from clicking on bookmarked text multiple times
+* Signal that a bookmark already exists if the user tries to make another one

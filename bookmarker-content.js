@@ -56,7 +56,7 @@ const handleTextSelection = () => {
   const range = document.createRange();
 
   const commonAncestorNode = selectionObject.getRangeAt(0).commonAncestorContainer;
-  console.log(commonAncestorNode);
+  //console.log(commonAncestorNode);
 
   if(commonAncestorNode.nodeName === "P" || commonAncestorNode.contains(anchorNode) && commonAncestorNode.contains(focusNode)){
   
@@ -84,12 +84,17 @@ const handleTextSelection = () => {
 };
 
 const handleBookmarkSelection = (e) => {
-  console.log("handleBookmarkSelection");
+  //console.log("handleBookmarkSelection");
 
-  const tooltipElement = tooltip("remove-bookmark");
+  const tooltipElement = document.querySelector(".tooltip");
+  //console.log(tooltipElement);
 
-  const bookmarkedElement = e.target;
-  bookmarkedElement.appendChild(tooltipElement);
+  if(tooltipElement == null){
+    const newTooltipElement = tooltip("remove-bookmark");
+    const bookmarkedElement = e.target;
+    bookmarkedElement.appendChild(newTooltipElement);
+  }
+
 }
 
 const addBookmark = (e) => {
@@ -122,6 +127,7 @@ const addBookmark = (e) => {
   console.log(childNodesArray.indexOf(selectionObject.focusNode));
 
   const bookmarkByPage = {
+    workURL: window.location.href,
     workNumber: workNumber,
     chapterNumber: chapterNumber,
     parentClass: parentClass,
@@ -187,8 +193,8 @@ const displayBookmark = (bookmarkByPage) => {
   const startElement = parentNode.childNodes[bookmarkByPage.anchorIndex];
   const endElement = parentNode.childNodes[bookmarkByPage.focusIndex];
 
-  console.log(parentNode.childNodes[0]);
-  console.log(bookmarkByPage.focusIndex);
+  //console.log(parentNode.childNodes[0]);
+  //console.log(bookmarkByPage.focusIndex);
 
   // Set the start and end of the range to include all child elements within the selection
   range.setStartBefore(startElement);
@@ -255,18 +261,19 @@ const removeIds = () => {
       }
     }
   });
-  console.log(userstuff);
+  //console.log(userstuff);
 };
 //!!!!!!!!!!!!
 
 const checkIfBookmarkExists = async () => {
   const { bookmarks } = await chrome.storage.local.get("bookmarks");
+  console.log(bookmarks);
 
   const { workNumber, chapterNumber } = getChapterFromURL(window.location.href);
   const bookmarkByPage = bookmarks[workNumber];
 
   if(bookmarkByPage && bookmarkByPage?.chapterNumber === chapterNumber){  
-    console.log(bookmarkByPage);
+    //console.log(bookmarkByPage);
     displayBookmark(bookmarkByPage);
   }
 }
@@ -282,14 +289,21 @@ chapter.addEventListener("mouseup", (e) => {
   const bookmarkedText = document.querySelector(".bookmarkedText");
   const tooltipElement = document.querySelector(".tooltip");
 
+  const isSelectionCollapsed = document.getSelection().isCollapsed;
+
   if(selectedTextElement && !selectedTextElement.contains(e.target) && !tooltipElement.contains(e.target)){
-    console.log("selectedTextElement && !selectedTextElement.contains(e.target)");
+    //console.log("selectedTextElement && !selectedTextElement.contains(e.target)");
     selectedTextElement.classList.remove("selectedText");
     selectedTextElement.parentNode.removeChild(tooltipElement);
-  }else if(bookmarkedText && !bookmarkedText.contains(e.target) && !tooltipElement.contains(e.target)){
+  }else if(bookmarkedText && !bookmarkedText.contains(e.target) && tooltipElement && !tooltipElement.contains(e.target)){
     bookmarkedText.removeChild(tooltipElement);
+  }else if(bookmarkedText && !bookmarkedText.contains(e.target) && !tooltipElement && !isSelectionCollapsed){
+    console.log("bookmarkedText && !bookmarkedText.contains(e.target) && !tooltipElement && !isSelectionCollapsed");
+  }else if(bookmarkedText && bookmarkedText.contains(e.target) && !tooltipElement && !isSelectionCollapsed){
+    console.log("bookmarkedText && bookmarkedText.contains(e.target) && !tooltipElement && !isSelectionCollapsed");
   }else{
-    //console.log("workskin");
+    console.log("handleTextSelection();");
     handleTextSelection();    
   }
+  
 });

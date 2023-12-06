@@ -76,9 +76,10 @@ const handleTextSelection = () => {
       spanElement.className = "selectedText";
     
       spanElement.appendChild(range.extractContents());
+      spanElement.appendChild(tooltipElement);
   
       range.insertNode(spanElement);
-      range.insertNode(tooltipElement); //tooltip created in other method
+      //range.insertNode(tooltipElement); //tooltip created in other method
     }
   }
 };
@@ -107,9 +108,11 @@ const addBookmark = (e) => {
 
   const parentNode = text.parentNode;
   const parentClass = text.parentNode.className;
-  const tooltip = document.querySelector(`.${parentClass}`).querySelector(".tooltip");
 
-  parentNode.removeChild(tooltip);
+  //const tooltip = document.querySelector(`.${parentClass}`).querySelector(".tooltip");
+  const tooltip = text.querySelector(".tooltip");
+
+  text.removeChild(tooltip);
 
   console.log(selectionObject);
   const childNodesArray = Array.from(parentNode.childNodes);
@@ -295,12 +298,15 @@ chapter.addEventListener("mouseup", (e) => {
     //console.log("selectedTextElement && !selectedTextElement.contains(e.target)");
     selectedTextElement.classList.remove("selectedText");
     selectedTextElement.parentNode.removeChild(tooltipElement);
+    //You need to remove the actual span element as well
   }else if(bookmarkedText && !bookmarkedText.contains(e.target) && tooltipElement && !tooltipElement.contains(e.target)){
     bookmarkedText.removeChild(tooltipElement);
   }else if(bookmarkedText && !bookmarkedText.contains(e.target) && !tooltipElement && !isSelectionCollapsed){
     console.log("bookmarkedText && !bookmarkedText.contains(e.target) && !tooltipElement && !isSelectionCollapsed");
-  }else if(bookmarkedText && bookmarkedText.contains(e.target) && !tooltipElement && !isSelectionCollapsed){
-    console.log("bookmarkedText && bookmarkedText.contains(e.target) && !tooltipElement && !isSelectionCollapsed");
+    console.log("Do you wish to bookmark this text?");
+    //create a tooltip for this situation
+  }else if(bookmarkedText && bookmarkedText.contains(e.target) && !isSelectionCollapsed){
+    console.log("bookmarkedText && bookmarkedText.contains(e.target) && !isSelectionCollapsed");
   }else{
     console.log("handleTextSelection();");
     handleTextSelection();    

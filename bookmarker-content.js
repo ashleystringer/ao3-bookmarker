@@ -27,6 +27,38 @@ const tooltip = (actionType) => {
   return tooltip;
 }
 //!!!!!!!!!!!!
+/*
+const tooltip = () => {
+  const tooltip = document.createElement("div");
+  tooltip.classList.add("tooltip");
+
+  tooltip.innerText = "Do you want to delete previous bookmark?";
+
+  const yesBtn = document.createElement("button");
+  const noBtn = document.createElement("button");
+
+  yesBtn.classList.add("btn");
+  noBtn.classList.add("btn");
+
+  yeBtn.innerText = "Yes";
+  noBtn.innerText = "No";
+
+  yesBtn.addEventListener("click", e => {
+    e.stopPropagation();
+    //remove previous bookmark
+    //add new bookmark
+  });
+
+  noBtn.addEventListener("click", e => {
+    //remove tooltip
+    e.stopPropagation();
+  });
+
+  tooltip.appendChild(yesBtn);
+  tooltip.appendChild(noBtn);
+}
+
+*/
 
 //!!!!!!!!!!!!
 const getChapterFromURL = (url) => {
@@ -184,6 +216,20 @@ const removeBookmark = (e) => {
 
 }
 
+const removeSelectedTextSpan = (selectedTextElement, tooltipElement) => {
+  selectedTextElement.removeChild(tooltipElement);
+
+  const originalText = selectedTextElement.innerHTML;
+
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = originalText;
+
+  while (tempDiv.firstChild) {
+    selectedTextElement.parentNode.insertBefore(tempDiv.firstChild, selectedTextElement);
+  }
+  selectedTextElement.parentNode.removeChild(selectedTextElement);
+}
+
 const displayBookmark = (bookmarkByPage) => {
   console.log("bookmarkByPage");
 
@@ -287,7 +333,6 @@ checkIfBookmarkExists();
 const chapter = document.querySelector("#workskin").querySelector("#chapters");
 
 chapter.addEventListener("mouseup", (e) => {
-  //console.log("on mouse up");
   const selectedTextElement = document.querySelector(".selectedText");
   const bookmarkedText = document.querySelector(".bookmarkedText");
   const tooltipElement = document.querySelector(".tooltip");
@@ -295,21 +340,19 @@ chapter.addEventListener("mouseup", (e) => {
   const isSelectionCollapsed = document.getSelection().isCollapsed;
 
   if(selectedTextElement && !selectedTextElement.contains(e.target) && !tooltipElement.contains(e.target)){
-    //console.log("selectedTextElement && !selectedTextElement.contains(e.target)");
-    selectedTextElement.classList.remove("selectedText");
-    selectedTextElement.parentNode.removeChild(tooltipElement);
-    //You need to remove the actual span element as well
+    removeSelectedTextSpan(selectedTextElement, tooltipElement);
   }else if(bookmarkedText && !bookmarkedText.contains(e.target) && tooltipElement && !tooltipElement.contains(e.target)){
     bookmarkedText.removeChild(tooltipElement);
   }else if(bookmarkedText && !bookmarkedText.contains(e.target) && !tooltipElement && !isSelectionCollapsed){
     console.log("bookmarkedText && !bookmarkedText.contains(e.target) && !tooltipElement && !isSelectionCollapsed");
     console.log("Do you wish to bookmark this text?");
+    //handleTextSelection(tooltipType);
     //create a tooltip for this situation
   }else if(bookmarkedText && bookmarkedText.contains(e.target) && !isSelectionCollapsed){
     console.log("bookmarkedText && bookmarkedText.contains(e.target) && !isSelectionCollapsed");
+    return;
   }else{
     console.log("handleTextSelection();");
     handleTextSelection();    
-  }
-  
+  }  
 });

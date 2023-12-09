@@ -7,6 +7,9 @@ const readingTimeCheckboxLabel = document.querySelector(".reading-time-checkbox-
 window.onload = async e => {
   toggleReadingTimeCheckbox();
   //createBookmarkList();
+  const { bookmarks } = await chrome.storage.local.get("bookmarks");
+  console.log(bookmarks);
+  updateBookmarkList(bookmarks);
 };
 
 const toggleReadingTimeCheckbox = async () => {
@@ -22,39 +25,27 @@ readingTimeCheckbox.addEventListener("change", async (e) => {
   });
 });
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if(message.event === "bookmarkAdded"){
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  console.log("chrome.storage.onChange");
+  if(changes.bookmarks && areaName === "local"){
+    console.log(changes.bookmarks.newValue);
+    updateBookmarkList(changes.bookmarks.newValue);
+  }
+});
 
+const updateBookmarkList = (bookmarks) => {
+  const ul = document.querySelector("ul");
+  ul.innerHTML = ''; // clear the list
+  console.log(bookmarks);
+  for(const bookmark in bookmarks){
+    console.log(bookmarks[bookmark].workNumber);
     const template = document.querySelector(".li_template");
     const element = template.content.firstElementChild.cloneNode(true);
 
-    element.querySelector(".title").textContent = "Title";
-    element.querySelector(".pathname").textContent = "Pathname";
+    console.log(bookmark);
+
+    element.querySelector(".title").textContent = `Work number: ${bookmarks[bookmark].workNumber}`;
   
-    elements.add(element);
-
-    document.querySelector("ul").append(...elements);
-
-    sendResponse({ status: "success" });
-
-    /*chrome.storage.local.get("bookmarks", (result) => {
-
-      const elements = new Set();
-  
-  
-      if(result.bookmarks && Object.keys(result.bookmarks).length > 0){
-        for(let bookmark in result.bookmarks) {
-          const element = template.content.firstElementChild.cloneNode(true);
-          const title = bookmark.workNumber;
-          const pathname = bookmark.workURL;
-      
-          element.querySelector(".title").textContent = "title";
-          element.querySelector(".pathname").textContent = "pathname";
-      
-          elements.add(element);
-        }
-      }
-      document.querySelector("ul").append(...elements);
-    });*/
+    ul.append(element);
   }
-});
+}

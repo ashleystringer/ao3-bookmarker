@@ -15,13 +15,3 @@ chrome.commands.onCommand.addListener(command => {
     chrome.browserAction.openPopup();
   }
 });
-
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.greeting === "popupEvent") {
-    console.log("popupEvent");
-    /*chrome.scripting.executeScript({
-        target: {tabId: tab.id},
-        files: ['average-time-content.js']
-    });*/
-  }
-});

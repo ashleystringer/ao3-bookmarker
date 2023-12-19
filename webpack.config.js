@@ -2,10 +2,24 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require("copy-webpack-plugin");
 
-module.exports = {
+const entries = ['content', 'bookmarker-content', 'average-time-content']
+
+/*
   entry: {
     popup: "./popup/popup.js"
   },
+
+  entry: Object.fromEntries(entries.map(entry => [
+    entry,
+    path.join(__dirname, "./content/", `${entry}.js`)
+  ])),
+*/
+
+module.exports = {
+  entry: Object.fromEntries(entries.map(entry => [
+    entry,
+    path.join(__dirname, "./content/", `${entry}.js`)
+  ])),
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].js', //'[name.js]'
@@ -30,7 +44,7 @@ module.exports = {
   new CopyPlugin({
     patterns: [
       { from: "manifest.json" },
-      { from: "content"},
+      { from: "content" },
       { from: "service-worker.js"}
     ],
   }),

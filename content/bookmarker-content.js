@@ -1,6 +1,7 @@
-//!!!!!!!!!!!!
+import { addIds, removeIds, getChapterFromURL } from "../src/utils.js";
+import { Tooltip } from "../src/tooltip.js";
 
-const tooltip = (actionType) => {
+export const tooltip = (actionType) => {
   const tooltip = document.createElement("div");
   tooltip.classList.add("tooltip");
 
@@ -27,56 +28,6 @@ const tooltip = (actionType) => {
 
   return tooltip;
 }
-//!!!!!!!!!!!!
-/*
-const tooltip = () => {
-  const tooltip = document.createElement("div");
-  tooltip.classList.add("tooltip");
-
-  tooltip.innerText = "Do you want to delete previous bookmark?";
-
-  const yesBtn = document.createElement("button");
-  const noBtn = document.createElement("button");
-
-  yesBtn.classList.add("btn");
-  noBtn.classList.add("btn");
-
-  yeBtn.innerText = "Yes";
-  noBtn.innerText = "No";
-
-  yesBtn.addEventListener("click", e => {
-    e.stopPropagation();
-    //remove previous bookmark
-    //add new bookmark
-  });
-
-  noBtn.addEventListener("click", e => {
-    //remove tooltip
-    e.stopPropagation();
-  });
-
-  tooltip.appendChild(yesBtn);
-  tooltip.appendChild(noBtn);
-}
-
-*/
-
-//!!!!!!!!!!!!
-const getChapterFromURL = (url) => {
-  const regex = /works\/(\d+).*chapters\/(\d+)/;
-
-  const match = url.match(regex);
-
-  if (match) {
-    const workNumber = match[1];
-    const chapterNumber = match[2];
-
-    return { workNumber, chapterNumber };
-  }
-
-  return null;
-}
-//!!!!!!!!!!!!
 
 const handleTextSelection = () => { 
   const selectionObject = document.getSelection();
@@ -85,6 +36,8 @@ const handleTextSelection = () => {
 
   console.log(selectionObject);
   const tooltipElement = tooltip("add-bookmark");
+  //const tooltipElement = new Tooltip();
+  //tooltipElement.addButton("+", addBookmark());
 
   const range = document.createRange();
 
@@ -123,8 +76,11 @@ const handleBookmarkSelection = (e) => {
   const tooltipElement = document.querySelector(".tooltip");
   //console.log(tooltipElement);
 
+
   if(tooltipElement == null){
     const newTooltipElement = tooltip("remove-bookmark");
+    //const tooltipElement = new Tooltip();
+    //tooltipElement.addButton("+", addBookmark());
     const bookmarkedElement = e.target;
     bookmarkedElement.appendChild(newTooltipElement);
   }
@@ -262,58 +218,6 @@ const displayBookmark = (bookmarkByPage) => {
     range.insertNode(spanElement);
   }
 }
-
-//!!!!!!!!!!!!
-const addIds = () => {
-  const chapter = document
-    .querySelector("#workskin")
-    .querySelector("#chapters");
-  const userstuff = chapter.querySelector(".userstuff.module");
-  //console.log(userstuff);
-
-  userstuff.childNodes.forEach((child, index) => {
-    if (child.nodeName !== "#text") {
-      child.classList.add(`${child.nodeName}-${index}`);
-      if (child.childNodes.length !== 0) {
-        const childNodes = child.childNodes;
-        let childIndex = 0;
-        childNodes.forEach(childNode => {
-          if (childNode.nodeName !== "#text") {
-            childIndex++;
-            childNode.classList.add(`${childNode.nodeName}-${childIndex}`);
-          }
-        });
-      }
-    }
-  });
-};
-//!!!!!!!!!!!!
-
-//!!!!!!!!!!!!
-const removeIds = () => {
-  const chapter = document
-    .querySelector("#workskin")
-    .querySelector("#chapters");
-  const userstuff = chapter.querySelector(".userstuff.module");
-
-  userstuff.childNodes.forEach((child, index) => {
-    if (child.nodeName !== "#text") {
-      child.classList.remove(`${child.nodeName}-${index}`);
-      if (child.childNodes.length !== 0) {
-        const childNodes = child.childNodes;
-        let childIndex = 0;
-        childNodes.forEach(childNode => {
-          if (childNode.nodeName !== "#text") {
-            childIndex++;
-            childNode.classList.remove(`${childNode.nodeName}-${childIndex}`);
-          }
-        });
-      }
-    }
-  });
-  //console.log(userstuff);
-};
-//!!!!!!!!!!!!
 
 const checkIfBookmarkExists = async () => {
   const { bookmarks } = await chrome.storage.local.get("bookmarks");

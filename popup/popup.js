@@ -1,6 +1,4 @@
 console.log("popup.js");
-
-
 const readingTimeCheckbox = document.querySelector(".reading-time-checkbox");
 const readingTimeCheckboxLabel = document.querySelector(".reading-time-checkbox-label");
 

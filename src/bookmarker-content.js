@@ -1,5 +1,5 @@
-import { addIds, removeIds, getChapterFromURL } from "../src/utils.js";
-import { Tooltip } from "../src/tooltip.js";
+import { addIds, removeIds, getChapterFromURL } from "./utils.js";
+import { Tooltip } from "./tooltip.js";
 
 export const tooltip = (actionType) => {
   const tooltip = document.createElement("div");

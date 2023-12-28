@@ -18,7 +18,7 @@ const entries = ['content', 'bookmarker-content', 'average-time-content']
 module.exports = {
   entry: Object.fromEntries(entries.map(entry => [
     entry,
-    path.join(__dirname, "./content/", `${entry}.js`)
+    path.join(__dirname, "./src/", `${entry}.js`)
   ])),
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -38,13 +38,13 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: "./popup/popup.html",
+      template: "./src/popup.html",
       filename: "popup.html"
   }),
   new CopyPlugin({
     patterns: [
       { from: "manifest.json" },
-      { from: "content" },
+      { from: "src", globOptions: { ignore: ["**/popup.html"] }},
       { from: "service-worker.js"}
     ],
   }),

@@ -1,5 +1,4 @@
 TASKS
-* Fix the location of the tooltip 
+* Make sure handleTextSelection() isn't called when text is already bookmarked
+* Create functions for the tooltip and export them to bookmarker-content.js
 * Fix the span elements being created from the handleTextSelection method
-* Signal that a bookmark already exists if the user tries to make another one
-* Fix the popup to display the bookmarks

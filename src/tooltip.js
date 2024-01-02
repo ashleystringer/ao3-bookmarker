@@ -1,114 +1,45 @@
-/*export const tooltip = (actionType) => {
-    const tooltip = document.createElement("div");
-    tooltip.classList.add("tooltip");
-  
-    const btnDiv = document.createElement("button");
-    btnDiv.classList.add("btn");
-  
-    btnDiv.innerText = actionType === "add-bookmark" ? "+" : "-";
-  
-    if(!btnDiv.hasClickListener){
-      btnDiv.addEventListener("click", e => {
-        e.stopPropagation();
-        console.log("Button test");
-  
-        if(actionType === "add-bookmark"){
-          addBookmark(e);
-        }else{
-          removeBookmark(e);
-        }
-      });
-      btnDiv.hasClickListener = true;
-    }
-  
-    tooltip.appendChild(btnDiv);
-  
-    return tooltip;
-  }*/
-
-
-  export class Tooltip{
-    constructor(){
-      this.tooltip = this.createTooltip();
-      this.actionType = null;
-      this.message = null;
-    }
-    createTooltip(){
-      const tooltip = document.createElement("div");
-      tooltip.classList.add("tooltip");
-
-      return tooltip;
-    }
-    addActionType(actionType, button){
-      button.addEventListener("click", e => {
-        e.stopPropagation();
-        actionType(e);
-      });
-    }
-    addMessage(message){
-
-    }
-    addButton(buttonMessage, actionType){
-      const button = document.createElement("button");
-      button.classList.add("btn");
-      button.innerText = buttonMessage;
-      this.addActionType(actionType, button);
-      this.tooltip.appendChild(button);
-    }
-  }
+/*
+Requirements for the tooltip
+- Needs to have two buttons 
+  - One to add or delete a bookmark
+    - One icon to add a bookmark
+    - One icon to delete a bookmark
+    - One icon to replace a bookmark
+  - Copy the selected text
+*/
 
 /*
-function createTooltip(){
-    const tooltip = document.createElement("div");
-    tooltip.classList.add("tooltip");
-
-    return tooltip;
-}
-function addActionTypeToButton(actionType, button){
-    button.addEventListener("click", e => {
-      e.stopPropagation();
-      actionType(e);
-    });
-}
-function addButtonToTooltip(ttoltip, buttonMessage, actionType){
-    const button = document.createElement("button");
-    button.classList.add("btn");
-    button.innerText = buttonMessage;
-    this.addActionType(actionType, button);
-    this.tooltip.appendChild(button);
-}
+  //create tooltip and add it onto the DOM element
+  //
 */
 
 
-  /*
-const tooltip = () => {
+export const createTooltip = (buttonMsg, callback) => {
   const tooltip = document.createElement("div");
   tooltip.classList.add("tooltip");
 
-  tooltip.innerText = "Do you want to delete previous bookmark?";
+  const btnDiv = document.createElement("button");
+  btnDiv.classList.add("btn");
 
-  const yesBtn = document.createElement("button");
-  const noBtn = document.createElement("button");
+  btnDiv.innerText = buttonMsg;
 
-  yesBtn.classList.add("btn");
-  noBtn.classList.add("btn");
+  if(!btnDiv.hasClickListener){
+    btnDiv.addEventListener("click", e => {
+      e.stopPropagation();
+      console.log("Button test");
 
-  yeBtn.innerText = "Yes";
-  noBtn.innerText = "No";
+      callback(e);
 
-  yesBtn.addEventListener("click", e => {
-    e.stopPropagation();
-    //remove previous bookmark
-    //add new bookmark
-  });
+    });
+    btnDiv.hasClickListener = true;
+  }
 
-  noBtn.addEventListener("click", e => {
-    //remove tooltip
-    e.stopPropagation();
-  });
+  tooltip.appendChild(btnDiv);
 
-  tooltip.appendChild(yesBtn);
-  tooltip.appendChild(noBtn);
+  return tooltip;
 }
 
-*/
+export const removeTooltip = (parentElement) => {
+  const tooltip = parentElement.querySelector(".tooltip");
+  parentElement.removeChild(tooltip);
+}

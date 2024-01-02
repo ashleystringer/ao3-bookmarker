@@ -1,33 +1,5 @@
 import { addIds, removeIds, getChapterFromURL } from "./utils.js";
-import { Tooltip } from "./tooltip.js";
-
-export const tooltip = (actionType) => {
-  const tooltip = document.createElement("div");
-  tooltip.classList.add("tooltip");
-
-  const btnDiv = document.createElement("button");
-  btnDiv.classList.add("btn");
-
-  btnDiv.innerText = actionType === "add-bookmark" ? "+" : "-";
-
-  if(!btnDiv.hasClickListener){
-    btnDiv.addEventListener("click", e => {
-      e.stopPropagation();
-      console.log("Button test");
-
-      if(actionType === "add-bookmark"){
-        addBookmark(e);
-      }else{
-        removeBookmark(e);
-      }
-    });
-    btnDiv.hasClickListener = true;
-  }
-
-  tooltip.appendChild(btnDiv);
-
-  return tooltip;
-}
+import { createTooltip, removeTooltip } from "./tooltip.js";
 
 const handleTextSelection = () => { 
   const selectionObject = document.getSelection();
@@ -35,14 +7,15 @@ const handleTextSelection = () => {
   const focusNode = selectionObject.focusNode;
 
   console.log(selectionObject);
-  const tooltipElement = tooltip("add-bookmark");
-  //const tooltipElement = new Tooltip();
-  //tooltipElement.addButton("+", addBookmark());
+///!!!!!!! TOOLTIP !!!!!!! ///
+  const tooltipElement = createTooltip("+", addBookmark);
+///!!!!!!! TOOLTIP !!!!!!! ///
+
+  console.log(tooltipElement);
 
   const range = document.createRange();
 
   const commonAncestorNode = selectionObject.getRangeAt(0).commonAncestorContainer;
-  //console.log(commonAncestorNode);
 
   if(commonAncestorNode.nodeName === "P" || commonAncestorNode.contains(anchorNode) && commonAncestorNode.contains(focusNode)){
   
@@ -65,43 +38,48 @@ const handleTextSelection = () => {
       spanElement.appendChild(tooltipElement);
   
       range.insertNode(spanElement);
-      //range.insertNode(tooltipElement); //tooltip created in other method
     }
   }
 };
 
 const handleBookmarkSelection = (e) => {
-  //console.log("handleBookmarkSelection");
+
+  console.log("Inside handleBookmarkSelection();");
+///!!!!!!! TOOLTIP !!!!!!! ///
 
   const tooltipElement = document.querySelector(".tooltip");
-  //console.log(tooltipElement);
 
+///!!!!!!! TOOLTIP !!!!!!! ///
 
+///!!!!!!! TOOLTIP !!!!!!! ///
   if(tooltipElement == null){
-    const newTooltipElement = tooltip("remove-bookmark");
+    const newTooltipElement = createTooltip("-", removeBookmark);
+
     //const tooltipElement = new Tooltip();
     //tooltipElement.addButton("+", addBookmark());
     const bookmarkedElement = e.target;
     bookmarkedElement.appendChild(newTooltipElement);
   }
+///!!!!!!! TOOLTIP !!!!!!! ///
 
 }
 
 const addBookmark = (e) => {
   const selectionObject = document.getSelection();
-  const text = document.querySelector(".selectedText");
-  text.classList.remove("selectedText");
-  text.classList.add("bookmarkedText");
+  const selectedText = document.querySelector(".selectedText");
+  selectedText.classList.remove("selectedText");
+  selectedText.classList.add("bookmarkedText");
 
-  text.addEventListener("click", e => { handleBookmarkSelection(e) });
+  selectedText.addEventListener("click", e => { handleBookmarkSelection(e) });
 
-  const parentNode = text.parentNode;
-  const parentClass = text.parentNode.className;
+  const parentNode = selectedText.parentNode;
+  const parentClass = selectedText.parentNode.className;
 
-  //const tooltip = document.querySelector(`.${parentClass}`).querySelector(".tooltip");
-  const tooltip = text.querySelector(".tooltip");
+  ///!!!!!!! TOOLTIP !!!!!!! ///
+  const tooltip = selectedText.querySelector(".tooltip");
 
-  text.removeChild(tooltip);
+  selectedText.removeChild(tooltip);
+  ///!!!!!!! TOOLTIP !!!!!!! ///
 
   console.log(selectionObject);
   const childNodesArray = Array.from(parentNode.childNodes);
@@ -127,7 +105,7 @@ const addBookmark = (e) => {
     anchorIndex: anchorIndex,
     focusOffset: selectionObject.focusOffset,
     focusIndex: focusIndex,
-    bookmarkedText: text.textContent
+    bookmarkedText: selectedText.textContent
   }
 
   console.log(bookmarkByPage);
@@ -147,8 +125,9 @@ const removeBookmark = (e) => {
 
   const bookmarkedElement = e.target.closest(".bookmarkedText");
 
-  const tooltip = bookmarkedElement.querySelector(".tooltip");
-  bookmarkedElement.removeChild(tooltip);
+  ///!!!!!!! TOOLTIP !!!!!!! ///
+  removeTooltip(bookmarkedElement);
+  ///!!!!!!! TOOLTIP !!!!!!! ///
 
   const originalText = bookmarkedElement.innerHTML;
 
@@ -199,9 +178,6 @@ const displayBookmark = (bookmarkByPage) => {
   const startElement = parentNode.childNodes[bookmarkByPage.anchorIndex];
   const endElement = parentNode.childNodes[bookmarkByPage.focusIndex];
 
-  //console.log(parentNode.childNodes[0]);
-  //console.log(bookmarkByPage.focusIndex);
-
   // Set the start and end of the range to include all child elements within the selection
   range.setStartBefore(startElement);
   range.setEndAfter(endElement);
@@ -240,7 +216,9 @@ const chapter = document.querySelector("#workskin").querySelector("#chapters");
 chapter.addEventListener("mouseup", (e) => {
   const selectedTextElement = document.querySelector(".selectedText");
   const bookmarkedText = document.querySelector(".bookmarkedText");
+  ///!!!!!!! TOOLTIP !!!!!!! ///
   const tooltipElement = document.querySelector(".tooltip");
+  ///!!!!!!! TOOLTIP !!!!!!! ///
 
   const isSelectionCollapsed = document.getSelection().isCollapsed;
 

@@ -3,7 +3,6 @@ export const addIds = () => {
       .querySelector("#workskin")
       .querySelector("#chapters");
     const userstuff = chapter.querySelector(".userstuff.module");
-    //console.log(userstuff);
   
     userstuff.childNodes.forEach((child, index) => {
       if (child.nodeName !== "#text") {
@@ -21,9 +20,8 @@ export const addIds = () => {
       }
     });
   };
-  //!!!!!!!!!!!!
-  
-  //!!!!!!!!!!!!
+
+
 export const removeIds = () => {
     const chapter = document
       .querySelector("#workskin")
@@ -45,7 +43,6 @@ export const removeIds = () => {
         }
       }
     });
-    //console.log(userstuff);
   };
 
 export const getChapterFromURL = (url) => {

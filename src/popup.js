@@ -43,7 +43,14 @@ const updateBookmarkList = (bookmarks) => {
     console.log(bookmark);
 
     element.querySelector(".title").textContent = `Work number: ${bookmarks[bookmark].workNumber}`;
+    const anchor = element.querySelector("a");
+    anchor.href = `${bookmarks[bookmark].workURL}`;
   
+    anchor.addEventListener("click", (e) => {
+      e.preventDefault();
+      chrome.tabs.create({ url: anchor.href });
+    });
+
     ul.append(element);
   }
 }

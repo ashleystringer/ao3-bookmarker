@@ -1,14 +1,12 @@
 import { addIds, removeIds, getChapterFromURL } from "./utils.js";
 import { createTooltip, removeTooltip } from "./tooltip.js";
 
-const handleTextSelection = () => { 
+const handleTextSelection = (tooltipElement) => { 
   const selectionObject = document.getSelection();
   const anchorNode = selectionObject.anchorNode;
   const focusNode = selectionObject.focusNode;
 
   console.log(selectionObject);
-  const tooltipElement = createTooltip("+", addBookmark);
-
 
   console.log(tooltipElement);
 
@@ -103,13 +101,10 @@ const addBookmark = (e) => {
   
     chrome.storage.local.set({ bookmarks: bookmarks });
   });
-  
-
 }
 
 const removeBookmark = (e) => {
-  const bookmarkedElement = e.target.closest(".bookmarkedText");
-
+  const bookmarkedElement = document.querySelector(".bookmarkedText");
   removeTooltip(bookmarkedElement);
 
   const originalText = bookmarkedElement.innerHTML;
@@ -133,6 +128,11 @@ const removeBookmark = (e) => {
     chrome.storage.local.set(result);
   });
 
+}
+
+const replaceBookmark = (e) => {
+  removeBookmark(e);
+  addBookmark(e);
 }
 
 const removeSelectedTextSpan = (selectedTextElement) => {
@@ -207,7 +207,8 @@ chapter.addEventListener("mouseup", e => {
   }else{
     //This needs to exist in order to create selectedTextElement in the first place
     console.log("handleTextSelection() in mouseup event listener");
-    handleTextSelection();
+    const tooltipElement = createTooltip("+", addBookmark);
+    handleTextSelection(tooltipElement);
   }
 });
 
@@ -217,7 +218,8 @@ function handleSelectedTextOption(targetElement, selectedTextElement, tooltipEle
     removeSelectedTextSpan(selectedTextElement);
   }else{
     console.log("handleTextSelection() in handleSelectedTextOption");
-      handleTextSelection();
+    const tooltipElement = createTooltip("+", addBookmark);
+    handleTextSelection(tooltipElement);
   }
 }
 
@@ -226,6 +228,8 @@ function handleBookmarkedTextOption(targetElement, bookmarkedText, tooltipElemen
     removeTooltip(bookmarkedText);
   } else if (!bookmarkedText.contains(targetElement) && !tooltipElement && !isSelectionCollapsed) {
     console.log("Do you wish to bookmark this text?");
+    const tooltipElement = createTooltip("?", replaceBookmark);
+    handleTextSelection(tooltipElement);
   } else if (bookmarkedText.contains(targetElement) && !isSelectionCollapsed) {
     console.log("bookmarkedText && bookmarkedText.contains(targetElement) && !isSelectionCollapsed");
   }

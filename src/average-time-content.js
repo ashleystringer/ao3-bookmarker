@@ -1,5 +1,12 @@
-const averageReadingTime = async () => {
+export const averageReadingTime = async () => {
   const { isReadingTimeOn } = await chrome.storage.local.get("isReadingTimeOn");
+
+  const readingTimeBadge = document.querySelector(".readingTimeBadge");
+
+  if (readingTimeBadge) {
+    const parentNode = readingTimeBadge.parentNode;
+    parentNode.removeChild(readingTimeBadge);
+  };
 
   if (isReadingTimeOn) {
     const article = document.querySelector("article");
@@ -21,6 +28,7 @@ const averageReadingTime = async () => {
       );
 
       const badge = document.createElement("p");
+      badge.classList.add("readingTimeBadge");
       badge.style.color = "#808080";
       badge.style.fontStyle = "italic";
       badge.innerText = `⏱️${readingTimeMin} - ${readingTimeMax} min read`;

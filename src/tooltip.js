@@ -41,5 +41,6 @@ export const createTooltip = (buttonMsg, callback) => {
 
 export const removeTooltip = (parentElement) => {
   const tooltip = parentElement.querySelector(".tooltip");
+  if(tooltip == null) return;
   parentElement.removeChild(tooltip);
 }

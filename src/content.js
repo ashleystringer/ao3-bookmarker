@@ -1,3 +1,4 @@
+import { averageReadingTime } from "./average-time-content.js";
 console.log("content.js");
 
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
@@ -15,6 +16,8 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       console.log("isReadingTimeOn: false");
       chrome.storage.local.set({ isReadingTimeOn: true });
     }
+
+    averageReadingTime();
   }
 });
 

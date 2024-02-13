@@ -2,6 +2,8 @@ import { addIds, removeIds, getChapterFromURL } from "./utils.js";
 import { createTooltip, removeTooltip } from "./tooltip.js";
 
 const handleTextSelection = (tooltipElement) => { 
+  //VIOLATION OF SINGLE RESPONSIBILITY PRINCIPLE?
+
   const selectionObject = document.getSelection();
   const anchorNode = selectionObject.anchorNode;
   const focusNode = selectionObject.focusNode;
@@ -14,6 +16,7 @@ const handleTextSelection = (tooltipElement) => {
 
   const commonAncestorNode = selectionObject.getRangeAt(0).commonAncestorContainer;
 
+  // ADDS THE SELECTEDTEXT CLASS TO THE SPAN ELEMENT AROUND THE SELECTED RANGE OF TEXT
   if(commonAncestorNode.nodeName === "P" || commonAncestorNode.contains(anchorNode) && commonAncestorNode.contains(focusNode)){
   
     if(selectionObject.anchorOffset < selectionObject.focusOffset){
@@ -37,9 +40,11 @@ const handleTextSelection = (tooltipElement) => {
       range.insertNode(spanElement);
     }
   }
+  //  
 };
 
 const handleBookmarkSelection = (e) => {
+  // ADD TOOLTIP TO REMOVE BOOKMARK
   console.log("Inside handleBookmarkSelection();");
 
   const tooltipElement = document.querySelector(".tooltip");
@@ -50,28 +55,41 @@ const handleBookmarkSelection = (e) => {
     const bookmarkedElement = e.target;
     bookmarkedElement.appendChild(newTooltipElement);
   }
+  //
 }
 
 const addBookmark = (e) => {
+
+  //VIOLATION OF SINGLE RESPONSIBILITY PRINCIPLE?
+
+  // REPLACING THE SELECTEDTEXT CLASS WITH THE BOOKMARKEDTEXT CLASS
+  const workTitle = document.querySelector(".title").textContent;
   const selectionObject = document.getSelection();
   const selectedText = document.querySelector(".selectedText");
   selectedText.classList.remove("selectedText");
   selectedText.classList.add("bookmarkedText");
+  //
 
+  // ADDING EVENT LISTENER TO THE SELECTEDTEXT ELEMENT
   selectedText.addEventListener("click", e => { handleBookmarkSelection(e) });
+  //
 
   const parentNode = selectedText.parentNode;
   const parentClass = selectedText.parentNode.className;
 
   removeTooltip(selectedText);
 
+  // GETTING THE INDEX OF THE ANCHOR AND FOCUS NODES TO PUT INTO LOCAL STORAGE
   console.log(selectionObject);
   const childNodesArray = Array.from(parentNode.childNodes);
   console.log(childNodesArray);
   const anchorIndex = childNodesArray.indexOf(selectionObject.anchorNode);
   const focusIndex = childNodesArray.indexOf(selectionObject.focusNode);
+  //
 
+  // GETTING THE WORK NUMBER AND CHAPTER NUMBER FROM THE URL TO PUT INTO LOCAL STORAGE
   const { workNumber, chapterNumber } = getChapterFromURL(window.location.href);
+  //
 
   console.log(anchorIndex);
   console.log(selectionObject.anchorNode);
@@ -80,8 +98,11 @@ const addBookmark = (e) => {
   console.log(selectionObject.focusNode);
   console.log(childNodesArray.indexOf(selectionObject.focusNode));
 
+  // ADDING TO LOCAL STORAGE
   const bookmarkByPage = {
+
     workURL: window.location.href,
+    workTitle: workTitle,
     workNumber: workNumber,
     chapterNumber: chapterNumber,
     parentClass: parentClass,
@@ -101,9 +122,13 @@ const addBookmark = (e) => {
   
     chrome.storage.local.set({ bookmarks: bookmarks });
   });
+  //
 }
 
 const removeBookmark = (e) => {
+  //VIOLATION OF SINGLE RESPONSIBILITY PRINCIPLE?
+
+  // REMOVING THE BOOKMARKED SPAN ELEMENT
   const bookmarkedElement = document.querySelector(".bookmarkedText");
   removeTooltip(bookmarkedElement);
 
@@ -117,7 +142,9 @@ const removeBookmark = (e) => {
   }
 
   bookmarkedElement.parentNode.removeChild(bookmarkedElement);
+  //
   
+  // REMOVING THE BOOKMARK FROM LOCAL STORAGE
   chrome.storage.local.get("bookmarks", (result) => {
     const { workNumber, chapterNumber } = getChapterFromURL(window.location.href);
 
@@ -127,6 +154,7 @@ const removeBookmark = (e) => {
 
     chrome.storage.local.set(result);
   });
+  //
 
 }
 
@@ -136,6 +164,7 @@ const replaceBookmark = (e) => {
 }
 
 const removeSelectedTextSpan = (selectedTextElement) => {
+  // REMOVING THE SELECTEDTEXT SPAN ELEMENT
   const originalText = selectedTextElement.innerHTML;
 
   const tempDiv = document.createElement("div");
@@ -145,9 +174,12 @@ const removeSelectedTextSpan = (selectedTextElement) => {
     selectedTextElement.parentNode.insertBefore(tempDiv.firstChild, selectedTextElement);
   }
   selectedTextElement.parentNode.removeChild(selectedTextElement);
+  //
 }
 
 const displayBookmark = (bookmarkByPage) => {
+  //VIOLATION OF SINGLE RESPONSIBILITY PRINCIPLE?
+
   console.log("bookmarkByPage");
 
   const range = document.createRange();
@@ -194,6 +226,8 @@ checkIfBookmarkExists();
 const chapter = document.querySelector("#workskin").querySelector("#chapters");
 
 chapter.addEventListener("mouseup", e => {
+  //VIOLATION OF OPEN-CLOSED PRINCIPLE?
+
   const selectedTextElement = document.querySelector(".selectedText");
   const bookmarkedText = document.querySelector(".bookmarkedText");
   const tooltipElement = document.querySelector(".tooltip");

@@ -4,7 +4,8 @@ console.log("service-worker.js");
 chrome.runtime.onInstalled.addListener(async ({ reason }) => {
   if (reason === "install") {
     chrome.storage.local.set({
-      isReadingTimeOn: false
+      isReadingTimeOn: true
+      //chrome.action.setBadgeText({ text: "0" });
     });
   }
 });

@@ -2,6 +2,8 @@ import { averageReadingTime } from "./average-time-content.js";
 console.log("content.js");
 
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
+
+  console.log("onMessage");
   if (message.event === "popupEvent") {
     console.log("popupEvent");
 
@@ -20,11 +22,3 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     averageReadingTime();
   }
 });
-
-const getReadingTimeBtnText = async () => {
-  const { isReadingTimeOn } = await chrome.storage.local.get("isReadingTimeOn");
-
-  return isReadingTimeOn;
-};
-
-console.log(getReadingTimeBtnText());

@@ -1,3 +1,7 @@
+/*
+- Add new styling to the popup to make it look more like a popup.
+*/
+
 console.log("popup.js");
 const readingTimeCheckbox = document.querySelector(".reading-time-checkbox");
 const readingTimeCheckboxLabel = document.querySelector(".reading-time-checkbox-label");
@@ -6,6 +10,14 @@ window.onload = async e => {
   toggleReadingTimeCheckbox();
   const { bookmarks } = await chrome.storage.local.get("bookmarks");
   console.log(bookmarks);
+  updateBookmarkList(bookmarks);
+};
+
+const deleteBookmark =  async (workNumber) => {
+  console.log("deleteBookmark");
+  const { bookmarks } = await chrome.storage.local.get("bookmarks");
+  delete bookmarks[workNumber];
+  chrome.storage.local.set({ bookmarks });
   updateBookmarkList(bookmarks);
 };
 
@@ -52,11 +64,13 @@ const updateBookmarkList = (bookmarks) => {
     const template = document.querySelector(".li_template");
     const element = template.content.firstElementChild.cloneNode(true);
 
-    element.querySelector(".title").textContent = bookmarks[bookmark].workTitle;
+    element.querySelector(".title").textContent = `${bookmarks[bookmark].workTitle}  (Ch. ${bookmarks[bookmark].chapterNumber})`;
     const anchor = element.querySelector("a");
     anchor.href = `${bookmarks[bookmark].workURL}`;
 
    element.querySelector(".pathname").textContent = bookmarks[bookmark].chapterNumber;
+
+   element.querySelector(".delete").addEventListener("click", (e) => { deleteBookmark(bookmarks[bookmark].workNumber); });
   
     anchor.addEventListener("click", (e) => {
       e.preventDefault();

@@ -1,16 +1,6 @@
 /*
-Requirements for the tooltip
-- Needs to have two buttons 
-  - One to add or delete a bookmark
-    - One icon to add a bookmark
-    - One icon to delete a bookmark
-    - One icon to replace a bookmark
-  - Copy the selected text
-*/
-
-/*
-  //create tooltip and add it onto the DOM element
-  //
+- Finish the tooltip and changeTooltipLocation methods.
+- Add JavaScript to properly center the tooltip relative to the selected or bookmarked text.
 */
 
 
@@ -45,15 +35,36 @@ export const createTooltip = (buttonMsg, callback) => {
   return tooltip;
 }
 
+export const tooltip = (buttonMsg, callback, parentElement) => {
+  const tooltip = createTooltip(buttonMsg, callback);
+  changeTooltipLocation(parentElement, tooltip); //change name of this function
+  return tooltip;
+}
+
 export const removeTooltip = (parentElement) => {
   const tooltip = parentElement.querySelector(".tooltip");
   if(tooltip == null) return;
   parentElement.removeChild(tooltip);
 }
 
-const changeTooltipLocation = () => {
-  //Take the location of either the tooltip or the selected or bookmarked text
-  //using getBoundingClientRect() on the element
-  //compare the location of the element to window.innerHeight and/or window.innerWidth
-  //change the location of the tooltip based on this comparison
+const changeTooltipLocation = (element, tooltip) => {
+
+  isTooltipUnderViewport(element);
+
+  tooltip.style.left = `${element.getBoundingClientRect().left}px`;
+
+  if (isTooltipUnderViewport(element)){
+    tooltip.style.top = `${element.getBoundingClientRect().bottom}px`; //`-120%`
+    tooltip["after"].style.top = 0;
+  }else{
+    tooltip.style.bottom = `120%`;
+    tooltip["after"].style.top = `100%`;
+  
+  }
+
+}
+
+export function isTooltipUnderViewport(element){
+  const rect = element.getBoundingClientRect();
+  if (rect.top <= 55) return true;
 }

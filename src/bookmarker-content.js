@@ -1,6 +1,10 @@
 import { addIds, removeIds, getChapterFromURL } from "./utils.js";
 import { createTooltip, removeTooltip } from "./tooltip.js";
 
+/*
+- Add a way to copy selected text rather than bookmarking it.
+*/
+
 const handleTextSelection = (tooltipElement) => { 
   //VIOLATION OF SINGLE RESPONSIBILITY PRINCIPLE?
 
@@ -132,17 +136,7 @@ const removeBookmark = (e) => {
   const bookmarkedElement = document.querySelector(".bookmarkedText");
   removeTooltip(bookmarkedElement);
 
-  const originalText = bookmarkedElement.innerHTML;
-
-  const tempDiv = document.createElement("div");
-  tempDiv.innerHTML = originalText;
-
-  while (tempDiv.firstChild) {
-    bookmarkedElement.parentNode.insertBefore(tempDiv.firstChild, bookmarkedElement);
-  }
-
-  bookmarkedElement.parentNode.removeChild(bookmarkedElement);
-  //
+  removeSpanElement(bookmarkedElement);
   
   // REMOVING THE BOOKMARK FROM LOCAL STORAGE
   chrome.storage.local.get("bookmarks", (result) => {
@@ -165,17 +159,22 @@ const replaceBookmark = (e) => {
 
 const removeSelectedTextSpan = (selectedTextElement) => {
   // REMOVING THE SELECTEDTEXT SPAN ELEMENT
-  const originalText = selectedTextElement.innerHTML;
+  removeSpanElement(selectedTextElement);
+}
+
+
+const removeSpanElement = (element) => {
+  const originalText = element.innerHTML;
 
   const tempDiv = document.createElement("div");
   tempDiv.innerHTML = originalText;
 
   while (tempDiv.firstChild) {
-    selectedTextElement.parentNode.insertBefore(tempDiv.firstChild, selectedTextElement);
+    element.parentNode.insertBefore(tempDiv.firstChild, element);
   }
-  selectedTextElement.parentNode.removeChild(selectedTextElement);
-  //
+  element.parentNode.removeChild(element);
 }
+
 
 const displayBookmark = (bookmarkByPage) => {
   //VIOLATION OF SINGLE RESPONSIBILITY PRINCIPLE?

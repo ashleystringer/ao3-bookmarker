@@ -15,3 +15,8 @@ li:nth-child(odd) {
 li:nth-child(even) {
     background-color: #ffffff;
 }
+
+.work-entry {
+    display: flex;
+    justify-content: space-between;
+}

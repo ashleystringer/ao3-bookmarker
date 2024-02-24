@@ -23,10 +23,6 @@ export const averageReadingTime = async () => {
       const readingTimeMax = Math.round(wordCount / 200);
       const readingTimeMin = Math.round(wordCount / 250);
 
-      console.log(
-        `readingTimeMax: ${readingTimeMax}, readingTimeMin: ${readingTimeMin}`
-      );
-
       const badge = document.createElement("p");
       badge.classList.add("readingTimeBadge");
       badge.style.color = "#808080";

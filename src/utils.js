@@ -49,13 +49,37 @@ export const getChapterFromURL = (url) => {
     const regex = /works\/(\d+).*chapters\/(\d+)/;
   
     const match = url.match(regex);
-  
+
     if (match) {
       const workNumber = match[1];
-      const chapterNumber = match[2];
+      const urlChapterNumber = match[2];
+      const pageChapterNumber = getChapterNumber();
   
-      return { workNumber, chapterNumber };
+      return { workNumber, urlChapterNumber, pageChapterNumber };
     }
   
     return null;
+};
+
+const getChapterNumber = () => {
+    const chapter = document.querySelector("#workskin").querySelector(".chapter").querySelector("a").textContent;
+    const regexChapter = /Chapter (\d+)/;
+    return chapter.match(regexChapter)[1];
+};
+
+export const removeSpanElement = (element) => {
+  const originalText = element.innerHTML;
+
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = originalText;
+
+  while (tempDiv.firstChild) {
+    element.parentNode.insertBefore(tempDiv.firstChild, element);
   }
+  element.parentNode.removeChild(element);
+}
+
+const getAuthorName = () => {
+  const authorName = document.querySelector(".byline").querySelector("a").textContent;
+  return author;
+};

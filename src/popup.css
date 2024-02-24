@@ -20,3 +20,21 @@ li:nth-child(even) {
     display: flex;
     justify-content: space-between;
 }
+
+.work-title {
+    font-weight: bold;
+    text-decoration: none;
+    color: #222;
+}
+
+.work-author {
+    font-style: italic;
+    text-decoration: none;
+    color: #444;
+}
+
+.delete-work {
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+}

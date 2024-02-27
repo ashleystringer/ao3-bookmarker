@@ -12,7 +12,6 @@ function handleSelectedTextOption(targetElement, selectedTextElement, tooltipEle
   }
 }
 
-
 const removeSelectedTextSpan = (selectedTextElement) => {
   removeSpanElement(selectedTextElement);
 }
@@ -56,7 +55,7 @@ const removeBookmark = (e) => {
 
 }
 
-const addBookmark = (e) => {
+const addBookmark = async (e) => {
 
   console.log("addBookmark() called.");
 
@@ -69,6 +68,8 @@ const addBookmark = (e) => {
   const selectedText = document.querySelector(".selectedText");
   selectedText.classList.remove("selectedText");
   selectedText.classList.add("bookmarkedText");
+
+  const { anchorOffset, anchorNodeIndex, focusOffset, focusNodeIndex } = await selectedTextData();
   //
 
   // ADDING EVENT LISTENER TO THE SELECTEDTEXT ELEMENT
@@ -84,8 +85,6 @@ const addBookmark = (e) => {
   console.log(selectionObject);
   const childNodesArray = Array.from(parentNode.childNodes);
   console.log(childNodesArray);
-  const anchorIndex = childNodesArray.indexOf(selectionObject.anchorNode);
-  const focusIndex = childNodesArray.indexOf(selectionObject.focusNode);
   //
 
   // GETTING THE WORK NUMBER AND CHAPTER NUMBER FROM THE URL TO PUT INTO LOCAL STORAGE
@@ -108,10 +107,10 @@ const addBookmark = (e) => {
     urlChapterNumber,
     pageChapterNumber,
     parentClass,
-    anchorOffset: selectionObject.anchorOffset,
-    anchorNodeIndex: anchorIndex,
-    focusOffset: selectionObject.focusOffset,
-    focusNodeIndex: focusIndex,
+    anchorOffset,
+    anchorNodeIndex,
+    focusOffset,
+    focusNodeIndex,
     bookmarkedText: selectedText.textContent
   }
 
@@ -125,6 +124,12 @@ const addBookmark = (e) => {
     chrome.storage.local.set({ bookmarks: bookmarks });
   });
   //
+}
+
+const selectedTextData = async () => {
+  const { selectedTextData } = await chrome.storage.local.get("selectedTextData");
+
+  return selectedTextData
 }
 
 const handleTextSelection = (tooltipElement) => {
@@ -175,26 +180,39 @@ const handleTextSelection = (tooltipElement) => {
     console.log(range.toString());
     if(!range.collapsed){
       console.log("range not collapsed");
-      const spanElement = document.createElement("span");
-      spanElement.className = "selectedText";
+
+      const markElement = document.createElement("mark");
+      markElement.className = "selectedText";
     
-      spanElement.appendChild(range.extractContents());
-      spanElement.appendChild(tooltipElement);
+      markElement.appendChild(range.extractContents());
+      markElement.appendChild(tooltipElement);
   
-      range.insertNode(spanElement);
+      range.insertNode(markElement);
     }
   }
-    /*
+
+  
+  const childNodesArray = Array.from(selectionObject.anchorNode.parentNode.childNodes);
+  const childNodesArray1 = Array.from(selectionObject.focusNode.parentNode.childNodes);
+
+  const anchorNodeIndex = childNodesArray.indexOf(selectionObject.anchorNode);
+  const focusNodeIndex = childNodesArray1.indexOf(selectionObject.focusNode);
+  
+
+  console.log(`selectionObject.anchorOffset: ${selectionObject.anchorOffset}`);
+  console.log(`anchorOffst: ${anchorOffset}`);
+  
+  console.log(`selectionObject.focusOffset: ${selectionObject.focusOffset}`);
+  console.log(`focusOffset: ${focusOffset}`);
+
   const selectedTextByPage = {
-    workURL: window.location.href,
-    workNumber: getChapterFromURL(window.location.href).workNumber,
-    anchorOffset: selectionObject.anchorOffset,
-    anchorNode: selectionObject.anchorNode,
-    focusOffset: selectionObject.focusOffset,
-    focusNode: selectionObject.focusNode,
-    selectedText: selectionObject.toString()  
+    anchorOffset,
+    anchorNodeIndex,
+    focusOffset,
+    focusNodeIndex,
   }
-  */  
+
+  chrome.storage.local.set({ selectedTextData: selectedTextByPage });
 };
 
 const getBookmarkByChapter = async () => {
@@ -212,34 +230,54 @@ const getBookmarkByChapter = async () => {
 const displayBookmark = (bookmarkByPage) => {
   //VIOLATION OF SINGLE RESPONSIBILITY PRINCIPLE?
 
+  console.log(bookmarkByPage);
+
   const range = document.createRange();
 
   // Get the parent node of the selection
   const parentNode = document.querySelector(`.${bookmarkByPage.parentClass}`);
 
   // Get the first and last child elements within the selection
-  const startElement = parentNode.childNodes[bookmarkByPage.anchorNodeIndex];
-  const endElement = parentNode.childNodes[bookmarkByPage.focusNodeIndex];
+  const anchorNode = parentNode.childNodes[bookmarkByPage.anchorNodeIndex];
+  const focusNode = parentNode.childNodes[bookmarkByPage.focusNodeIndex];
+
+  const anchorOffset = bookmarkByPage.anchorOffset;
+  const focusOffset = bookmarkByPage.focusOffset;
 
   console.log(parentNode);
 
-  console.log(startElement);
-  console.log(endElement);
+  console.log(anchorNode);
+  console.log(focusNode);
+
+  console.log("bookmarkByPage.anchorOffset");
+  console.log(bookmarkByPage.anchorOffset);
+
+  console.log("bookmarkByPage.focusOffset");
+  console.log(bookmarkByPage.focusOffset);
 
   // Set the start and end of the range to include all child elements within the selection
-  range.setStartBefore(startElement);
-  range.setEndAfter(endElement);
+  //range.setStartBefore(anchorNode);
+  //range.setEndAfter(focusNode);
+  
+  if(bookmarkByPage.anchorOffset < bookmarkByPage.focusOffset){
+    range.setStart(anchorNode, anchorOffset);
+    range.setEnd(focusNode, focusOffset);
+  }else{
+    range.setStart(focusNode, focusOffset);
+    range.setEnd(anchorNode, anchorOffset);
+  }
+
 
   if(!range.collapsed){
     console.log("range not collapsed");
-    const spanElement = document.createElement("span");
-    spanElement.className = "bookmarkedText";
+    const markElement = document.createElement("mark");
+    markElement.className = "bookmarkedText";
   
-    spanElement.appendChild(range.extractContents());
+    markElement.appendChild(range.extractContents());
 
-    spanElement.addEventListener("click", e => {handleBookmarkSelection(e)})
+    markElement.addEventListener("click", e => {handleBookmarkSelection(e)})
 
-    range.insertNode(spanElement);
+    range.insertNode(markElement);
   }
 }
 

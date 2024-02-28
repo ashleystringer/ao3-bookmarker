@@ -7,8 +7,12 @@
 export const createTooltip = (buttonMsg, callback) => {
   // CREATES TOOLTIP DIV
   const tooltip = document.createElement("div");
-  tooltip.classList.add("tooltip");
+  tooltip.classList.add("tooltip", "faded-out");
   //
+
+  requestAnimationFrame(() => {
+    tooltip.classList.remove("faded-out");
+  });
 
   // CREATES BUTTON DIV
   const btnDiv = document.createElement("button");

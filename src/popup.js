@@ -11,6 +11,7 @@ window.onload = async e => {
   const { bookmarks } = await chrome.storage.local.get("bookmarks");
   console.log(bookmarks);
   updateBookmarkList(bookmarks);
+  updateBadge(bookmarks);
 };
 
 const toggleReadingTimeCheckbox = async () => {
@@ -24,8 +25,14 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   if(changes.bookmarks && areaName === "local"){
     console.log(changes.bookmarks.newValue);
     updateBookmarkList(changes.bookmarks.newValue);
-    updateBadge(changes.bookmarks.newValue);
+    //updateBadge(changes.bookmarks.newValue);
   }
+  for(let [key, {oldValue, newValue}] of Object.entries(changes)){
+    console.log(`key: ${key}, oldValue: ${oldValue}, newValue: ${newValue}`);
+    if(key === "bookmarks"){
+      updateBadge(newValue);
+    }
+  };
 });
 
 const updateBookmarkList = (bookmarks) => {
@@ -64,9 +71,13 @@ const deleteBookmark =  async (workNumber) => {
   updateBookmarkList(bookmarks);
 };
 
-const updateBadge = async (bookmarks) => {
+const updateBadge = (bookmarks) => {
   console.log(`number of bookmarks: ${Object.keys(bookmarks).length}`);
-  chrome.action.setBadgeText({text: `${Object.keys(bookmarks).length}`});
+  if(Object.keys(bookmarks).length > 0){
+    chrome.action.setBadgeText({text: `${Object.keys(bookmarks).length}`});
+  }else{
+    chrome.action.setBadgeText({text: ""});
+  }
 }
 
 

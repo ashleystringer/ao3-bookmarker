@@ -5,8 +5,8 @@ chrome.runtime.onInstalled.addListener(async ({ reason }) => {
   if (reason === "install") {
     chrome.storage.local.set({
       isReadingTimeOn: true
-      //chrome.action.setBadgeText({ text: "0" });
     });
+    chrome.action.setBadgeText({ text: "0" });
   }
 });
 

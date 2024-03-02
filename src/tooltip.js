@@ -41,7 +41,7 @@ export const createTooltip = (buttonMsg, callback) => {
 
 export const tooltip = (buttonMsg, callback, parentElement) => {
   const tooltip = createTooltip(buttonMsg, callback);
-  changeTooltipLocation(parentElement, tooltip); //change name of this function
+  findTooltipLocation(parentElement, tooltip); //change name of this function
   return tooltip;
 }
 
@@ -51,7 +51,7 @@ export const removeTooltip = (parentElement) => {
   parentElement.removeChild(tooltip);
 }
 
-const changeTooltipLocation = (element, tooltip) => {
+export const findTooltipLocation = (element, tooltip) => {
 
   isTooltipUnderViewport(element);
 
@@ -68,7 +68,7 @@ const changeTooltipLocation = (element, tooltip) => {
 
 }
 
-export function isTooltipUnderViewport(element){
+function isTooltipUnderViewport(element){
   const rect = element.getBoundingClientRect();
   if (rect.top <= 55) return true;
 }

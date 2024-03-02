@@ -1,9 +1,5 @@
-import { addIds, getChapterFromURL, removeSpanElement } from "./utils.js";
-import { createTooltip, removeTooltip } from "./tooltip.js";
-
-/*
-- Add a way to copy selected text rather than bookmarking it.
-*/
+import { addIds, getChapterFromURL, removeMarkElement } from "./utils.js";
+import { createTooltip, removeTooltip, findTooltipLocation } from "./tooltip.js";
 
 function handleSelectedTextOption(targetElement, selectedTextElement, tooltipElement) {
   if (!selectedTextElement.contains(targetElement) && !tooltipElement.contains(targetElement)) {
@@ -13,7 +9,7 @@ function handleSelectedTextOption(targetElement, selectedTextElement, tooltipEle
 }
 
 const removeSelectedTextSpan = (selectedTextElement) => {
-  removeSpanElement(selectedTextElement);
+  removeMarkElement(selectedTextElement);
 }
 
 function handleBookmarkedTextOption(targetElement, bookmarkedText, tooltipElement, isSelectionCollapsed) {
@@ -28,6 +24,7 @@ function handleBookmarkedTextOption(targetElement, bookmarkedText, tooltipElemen
 }
 
 const replaceBookmark = (e) => {
+  //find some way to alter selectedTextData before addBookmark is called
   removeBookmark(e);
   addBookmark(e);
 }
@@ -39,7 +36,7 @@ const removeBookmark = (e) => {
   const bookmarkedElement = document.querySelector(".bookmarkedText");
   removeTooltip(bookmarkedElement);
 
-  removeSpanElement(bookmarkedElement);
+  removeMarkElement(bookmarkedElement);
   
   // REMOVING THE BOOKMARK FROM LOCAL STORAGE
   chrome.storage.local.get("bookmarks", (result) => {
@@ -92,9 +89,22 @@ const addBookmark = async (e) => {
   //
 
   console.log("anchorOffset");
+  console.log(anchorOffset);
+  console.log("anchorNodeIndex");
+  console.log(anchorNodeIndex);
+
+  console.log("selectionObject.anchorOffset");
   console.log(selectionObject.anchorOffset);
   console.log(childNodesArray.indexOf(selectionObject.anchorNode));
+
   console.log("focusOffset");
+  console.log(focusOffset);
+  console.log("focusNodeIndex");
+  console.log(focusNodeIndex);
+
+  console.log("focusOffset");
+  console.log(focusOffset);
+  console.log("selectionObject.focusOffset");
   console.log(selectionObject.focusOffset);
   console.log(childNodesArray.indexOf(selectionObject.focusNode));
 
@@ -149,6 +159,9 @@ const handleTextSelection = (tooltipElement) => {
   const commonAncestorNode = selectionObject.getRangeAt(0).commonAncestorContainer;
 
   // ADDS THE SELECTEDTEXT CLASS TO THE SPAN ELEMENT AROUND THE SELECTED RANGE OF TEXT
+
+  //Account for a special element (like span or em) being the only child element of a paragraph.
+  
   if(commonAncestorNode.nodeName === "P" || commonAncestorNode.contains(anchorNode) && commonAncestorNode.contains(focusNode)){
   
     console.log("anchor offset");
@@ -212,7 +225,7 @@ const handleTextSelection = (tooltipElement) => {
     focusNodeIndex,
   }
 
-  chrome.storage.local.set({ selectedTextData: selectedTextByPage });
+  chrome.storage.local.set({ selectedTextData: selectedTextByPage }); //There is a bug caused by this.
 };
 
 const getBookmarkByChapter = async () => {

@@ -67,16 +67,22 @@ const getChapterNumber = () => {
     return chapter.match(regexChapter)[1];
 };
 
-export const removeSpanElement = (element) => {
+export const removeMarkElement = (element) => {
   const originalText = element.innerHTML;
 
   const tempDiv = document.createElement("div");
   tempDiv.innerHTML = originalText;
 
+  const parentNode = element.parentNode;
+
   while (tempDiv.firstChild) {
-    element.parentNode.insertBefore(tempDiv.firstChild, element);
+    parentNode.insertBefore(tempDiv.firstChild, element);
   }
-  element.parentNode.removeChild(element);
+  parentNode.removeChild(element);
+  parentNode.normalize();
+  console.log("removeMarkElement");
+  console.log(parentNode);
+
 }
 
 const getAuthorName = () => {

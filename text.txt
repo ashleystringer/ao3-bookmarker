@@ -2,3 +2,16 @@ TASKS
 * Make sure handleTextSelection() isn't called when text is already bookmarked
 * Create functions for the tooltip and export them to bookmarker-content.js
 * Fix the span elements being created from the handleTextSelection method
+
+
+
+/*
+  - CASES
+    - When user selects a piece of text -> handleTextSelection()
+    - When user bookmarks a piece of text -> addBookmark()
+    - When user clicks outside a selected piece of text -> removeSelectedTextSpan()
+    - When user clicks outside a bookmarked piece of text without selecting other text -> handleTextSelection()
+    - When user selects a piece of text when there's already a bookmark -> "Do you wish to bookmark this text?"
+    - When user clicks on a bookmarked piece of text -> handleTextSelection() | handleBookmarkSelection() -> removeBookmark()
+    - When user clicks anywhere on the page without selecting text -> handleTextSelection()
+*/

@@ -1,5 +1,5 @@
-import { addIds, getChapterFromURL, removeMarkElement } from "./utils.js";
-import { createTooltip, removeTooltip, findTooltipLocation } from "./tooltip.js";
+import { addIds, getChapterFromURL, removeMarkElement, recalculateSelectionData } from "./utils.js";
+import { createTooltip, removeTooltip } from "./tooltip.js";
 
 function handleSelectedTextOption(targetElement, selectedTextElement, tooltipElement) {
   if (!selectedTextElement.contains(targetElement) && !tooltipElement.contains(targetElement)) {
@@ -148,13 +148,15 @@ const handleTextSelection = (tooltipElement) => {
   console.log("Inside handleTextSelection();");
 
   const selectionObject = document.getSelection();
+
+  recalculateSelectionData(selectionObject);
+
   const anchorNode = selectionObject.anchorNode;
   const anchorOffset = selectionObject.anchorOffset;
   const focusNode = selectionObject.focusNode;
   const focusOffset = selectionObject.focusOffset;
 
   const range = document.createRange();
-
 
   const commonAncestorNode = selectionObject.getRangeAt(0).commonAncestorContainer;
 
@@ -218,11 +220,17 @@ const handleTextSelection = (tooltipElement) => {
   console.log(`selectionObject.focusOffset: ${selectionObject.focusOffset}`);
   console.log(`focusOffset: ${focusOffset}`);
 
+  /*
+    - if there is bookmarkedText exists within a paragraph,
+    - find a way the anchor and focus nodes and offsets as if the bookmarkedText doesn't exist
+    
+  */
+
   const selectedTextByPage = {
-    anchorOffset,
-    anchorNodeIndex,
-    focusOffset,
-    focusNodeIndex,
+    anchorOffset, //recreated anchorOffset 
+    anchorNodeIndex, //recreated anchorNodeIndex
+    focusOffset, //recreated focusOffset
+    focusNodeIndex, //recreated focusNodeIndex
   }
 
   chrome.storage.local.set({ selectedTextData: selectedTextByPage }); //There is a bug caused by this.
@@ -333,17 +341,3 @@ chapter.addEventListener("mouseup", e => {
     handleTextSelection(tooltipElement);
   }
 });
-
-
-
-
-/*
-  - CASES
-    - When user selects a piece of text -> handleTextSelection()
-    - When user bookmarks a piece of text -> addBookmark()
-    - When user clicks outside a selected piece of text -> removeSelectedTextSpan()
-    - When user clicks outside a bookmarked piece of text without selecting other text -> handleTextSelection()
-    - When user selects a piece of text when there's already a bookmark -> "Do you wish to bookmark this text?"
-    - When user clicks on a bookmarked piece of text -> handleTextSelection() | handleBookmarkSelection() -> removeBookmark()
-    - When user clicks anywhere on the page without selecting text -> handleTextSelection()
-*/

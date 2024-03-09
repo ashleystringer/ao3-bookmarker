@@ -85,7 +85,113 @@ export const removeMarkElement = (element) => {
 
 }
 
-const getAuthorName = () => {
-  const authorName = document.querySelector(".byline").querySelector("a").textContent;
-  return author;
-};
+export async function recalculateSelectionData(selection) {
+  console.log("recalculateSelectionData");
+  console.log(selection);
+  const bookmarkedText = document.querySelector(".bookmarkedText");
+
+  const selectionAnchorOffset = selection.anchorOffset;
+  const selectionFocusOffset = selection.focusOffset;
+
+    // Check if there is bookmarked text in the same paragraph as the selection
+  // Check if the selected text is in the same child element as the bookmarked text (How would I do that?)
+
+  if (!bookmarkedText) return;
+
+
+  if (selection.anchorNode.previousSibling !== bookmarkedText) return;
+
+  console.log(`bookmarkedText.childNodes.length: ${bookmarkedText.childNodes.length}`);
+
+  const { bookmarks } = await chrome.storage.local.get("bookmarks");
+  const { workNumber } = getChapterFromURL(window.location.href);
+  const bookmarkByPage = bookmarks[workNumber];
+
+  console.log(bookmarkByPage);
+
+
+  // If the bookmarkedText has no child elements
+  if (bookmarkedText.childNodes.length === 1) {
+  // add the offset of its anchorIndex to the length of the bookmarkedText to the anchor offset of the selected text
+    //offset of bookmarkedText
+    const bookmarkAnchorOffset = bookmarkByPage.anchorOffset;
+    //length of bookmarkedText
+    const bookmarkedTextLength = bookmarkedText.textContent.length;
+    //offset of selected text
+    //const selectionAnchorOffset = selection.anchorOffset;
+    //const selectionFocusOffset = selection.focusOffset;
+
+    const test = bookmarkAnchorOffset + bookmarkedTextLength + selectionAnchorOffset;
+
+    console.log(`bookmarkAnchorOffset: ${bookmarkAnchorOffset}`);
+    console.log(`bookmarkedTextLength: ${bookmarkedTextLength}`);
+    console.log(`selectionAnchorOffset: ${selectionAnchorOffset}`);
+
+    console.log(`bookmarkAnchorIndex + bookmarkedTextLength + selectionAnchorOffset: ${test}`);
+    console.log(`bookmarkAnchorIndex + bookmarkedTextLength + selectionFocusOffset: ${bookmarkAnchorOffset + bookmarkedTextLength + selectionFocusOffset}`);
+  }else if (bookmarkedText.childNodes.length > 1){
+    //add the length of the last child of the bookmarkedText to the anchor offset of the selected text
+
+    console.log(bookmarkedText.lastChild);
+
+    //add the length of the last child of the bookmarkedText to the anchor offset of the selected text
+
+    const lastChildOffset = bookmarkedText.lastChild.textContent.length;
+
+    //const selectionAnchorOffset = selection.anchorOffset;
+    //const selectionFocusOffset = selection.focusOffset;
+
+    const test = lastChildOffset + selectionAnchorOffset;
+
+    console.log(`lastChildOffset + selectionAnchorOffset: ${test}`);
+    console.log(`lastChildOffset + selectionfocusOffset: ${lastChildOffset + selectionFocusOffset}`);
+  }
+
+  /*
+  // If the bookmarkedText has child elements
+
+  if (bookmarkedText.childNodes.length > 1) {
+    //add the length of the last child of the bookmarkedText to the anchor offset of the selected text
+
+    //const lastChildOffset = bookmarkedText.lastChild.textContent.length;
+
+    //const selectionAnchorOffset = selection.anchorOffset;
+  }
+  */
+
+    //const anchorNodeIndex = Array.from(paragraph.childNodes).indexOf(selection.anchorNode);
+    //const focusNodeIndex = Array.from(paragraph.childNodes).indexOf(selection.focusNode);
+
+
+  /*console.log(bookmarkedText.lastChild);
+
+  let adjustment = bookmarkedText.textContent.length;
+  console.log(`adjustment: ${adjustment}`);
+
+  console.log(selection.anchorNode);
+
+  console.log(`anchorOffset + adjustment`);
+  console.log(selection.anchorOffset + adjustment);
+  
+  console.log(`focusOffset + adjustment`);
+  console.log(selection.focusOffset + adjustment);*/
+  /*const bookmarkedText = paragraph.querySelector('.bookmarked-text');
+  let adjustment = 0;
+  if (bookmarkedText) {
+    adjustment = bookmarkedText.textContent.length;
+  }
+
+  // Adjust the calculation of the index and offsets
+
+
+  const anchorOffset = selection.anchorOffset - (selection.anchorNode === bookmarkedText ? adjustment : 0);
+  const focusOffset = selection.focusOffset - (selection.focusNode === bookmarkedText ? adjustment : 0);
+
+  // Return the recalculated selection data
+  return {
+    anchorNodeIndex,
+    focusNodeIndex,
+    anchorOffset,
+    focusOffset
+  };*/
+}

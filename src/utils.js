@@ -80,9 +80,6 @@ export const removeMarkElement = (element) => {
   }
   parentNode.removeChild(element);
   parentNode.normalize();
-  console.log("removeMarkElement");
-  console.log(parentNode);
-
 }
 
 export async function calculateSelectionData(selection) {
@@ -108,7 +105,6 @@ export async function calculateSelectionData(selection) {
 
   if (!bookmarkedText) return selectionData; 
 
-  if (selection.anchorNode.previousSibling !== bookmarkedText) return selectionData;
 
   const { bookmarks } = await chrome.storage.local.get("bookmarks");
   const { workNumber } = getChapterFromURL(window.location.href);
@@ -118,6 +114,22 @@ export async function calculateSelectionData(selection) {
   let recalculatedAnchorNodeIndex = anchorNodeIndex - 2;
   let recalculatedFocusOffset = -1;
   let recalculatedFocusNodeIndex = focusNodeIndex - 2;
+
+  if (selection.anchorNode.previousSibling !== bookmarkedText){
+    const boomarkedTextParent = Array.from(bookmarkedText.parentNode.childNodes);
+    const bookmarkedTextIndex = boomarkedTextParent.indexOf(bookmarkedText);
+    let distanceFromBookmark = (anchorNodeIndex - bookmarkedTextIndex) - 1;
+    recalculatedAnchorNodeIndex = bookmarkByPage.focusNodeIndex + distanceFromBookmark;
+    distanceFromBookmark = focusNodeIndex - anchorNodeIndex; //focusNodeIndex - bookmarkedTextIndex
+    recalculatedFocusNodeIndex = recalculatedAnchorNodeIndex + distanceFromBookmark;
+    
+    return {
+      anchorNodeIndex: recalculatedAnchorNodeIndex,
+      focusNodeIndex: recalculatedFocusNodeIndex,
+      anchorOffset: selection.anchorOffset,
+      focusOffset: selection.focusOffset
+    };
+  }
 
   // If the bookmarkedText has no child elements
   if (bookmarkedText.childNodes.length === 1) {
@@ -141,7 +153,12 @@ export async function calculateSelectionData(selection) {
 
     recalculatedAnchorNodeIndex = bookmarkByPage.focusNodeIndex;
     recalculatedFocusNodeIndex = bookmarkByPage.focusNodeIndex + Math.abs(focusNodeIndex - anchorNodeIndex);
+    //BUG - This is assuming the focusNodeIndex of the selection object is what it would be without the mark element existing.
   }
+
+  /*
+  - REMEMBER - The node indices for after the element the bookmarkedText is within are incorrect.
+  */
 
   // Return the recalculated selection data
   return {

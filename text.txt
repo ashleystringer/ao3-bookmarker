@@ -15,3 +15,34 @@ TASKS
     - When user clicks on a bookmarked piece of text -> handleTextSelection() | handleBookmarkSelection() -> removeBookmark()
     - When user clicks anywhere on the page without selecting text -> handleTextSelection()
 */
+
+
+  /*const anchorNode = parentNode.childNodes[bookmarkByPage.anchorNodeIndex];
+  const focusNode = parentNode.childNodes[bookmarkByPage.focusNodeIndex];*/
+
+
+  /*const test = await calculateSelectionData(selectionObject);
+  console.log(test);*/
+
+
+  /*const childNodesArray = Array.from(selectionObject.anchorNode.parentNode.childNodes);
+  const childNodesArray1 = Array.from(selectionObject.focusNode.parentNode.childNodes);
+
+  console.log(selectionObject.focusNode.parentNode.childNodes);
+
+  const anchorNodeIndex = childNodesArray.indexOf(selectionObject.anchorNode);
+  const focusNodeIndex = childNodesArray1.indexOf(selectionObject.focusNode);
+  
+  console.log(`anchorNodeIndex: ${anchorNodeIndex}`);
+  console.log(`focusNodeIndex: ${focusNodeIndex}`);*/
+
+
+
+
+    /*if(selectionObject.anchorOffset < selectionObject.focusOffset){
+      range.setStart(anchorNode, anchorOffset);
+      range.setEnd(focusNode, focusOffset);
+    }else{
+      range.setStart(focusNode, focusOffset);
+      range.setEnd(anchorNode, anchorOffset);
+    }*/

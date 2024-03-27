@@ -106,6 +106,9 @@ export async function calculateSelectionData(selection) {
   if (!bookmarkedText) return selectionData; 
 
 
+  if (selection.focusNode.compareDocumentPosition(bookmarkedText) & Node.DOCUMENT_POSITION_FOLLOWING) return selectionData;
+
+
   const { bookmarks } = await chrome.storage.local.get("bookmarks");
   const { workNumber } = getChapterFromURL(window.location.href);
   const bookmarkByPage = bookmarks[workNumber];

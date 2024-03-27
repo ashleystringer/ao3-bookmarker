@@ -146,33 +146,30 @@ const handleTextSelection = async (tooltipElement) => {
   console.log(`anchorNode.textContent.length: ${anchorNode.textContent.length}`);
   console.log(`focusNode.textContent.length: ${focusNode.textContent.length}`);
 
-  const range = document.createRange();
+  //const range = document.createRange();
 
   const commonAncestorNode = selectionObject.getRangeAt(0).commonAncestorContainer;
 
   // ADDS THE SELECTEDTEXT CLASS TO THE SPAN ELEMENT AROUND THE SELECTED RANGE OF TEXT
 
   //Account for a special element (like span or em) being the only child element of a paragraph.
+
+  console.log(`anchorOffset === selectionObject.anchorOffset: ${anchorOffset === selectionObject.anchorOffset}`);
+  console.log(`focusOffset === selectionObject.focusOffset: ${focusOffset === selectionObject.focusOffset}`);
   
   if(commonAncestorNode.nodeName === "P" || commonAncestorNode.contains(anchorNode) && commonAncestorNode.contains(focusNode)){
 
     //if anchorNode and focusNode are nodes other than text nodes
-   if((anchorNode === focusNode) && (selectionObject.anchorOffset < selectionObject.focusOffset)){
-      range.setStart(anchorNode, anchorOffset);
-      range.setEnd(focusNode, focusOffset);
-    }else if((anchorNode === focusNode) && (selectionObject.anchorOffset >= selectionObject.focusOffset)){      
-      range.setStart(focusNode, focusOffset);
-      range.setEnd(anchorNode, anchorOffset);
-    }
 
-    if((anchorNode !== focusNode) && (anchorNode.compareDocumentPosition(focusNode) & Node.DOCUMENT_POSITION_FOLLOWING)){
-      range.setStart(anchorNode, anchorOffset);
-      range.setEnd(focusNode, focusOffset);
-    }else if((anchorNode !== focusNode) && !(anchorNode.compareDocumentPosition(focusNode) & Node.DOCUMENT_POSITION_FOLLOWING)){
-      console.log("Else statement ran.");
-      range.setStart(focusNode, focusOffset);
-      range.setEnd(anchorNode, anchorOffset);
+    /*
+    if(anchorOffset === selectionObject.anchorOffset && focusOffset === selectionObject.focusOffset){
+      //use selectionObject.anchorOffset and selectionObject.focusOffset 
+    }else{
+      //use anchorOffset and focusOffset
     }
+    */
+
+    const range = modifiedRange({ anchorNode, anchorOffset, focusNode, focusOffset }, selectionObject);
 
     const anchorParagraph = anchorNode.parentNode.nodeName === 'P' ? anchorNode.parentNode : anchorNode.parentNode.closest('P');
     const focusParagraph = focusNode.parentNode.nodeName === 'P' ? focusNode.parentNode : focusNode.parentNode.closest('P');
@@ -205,7 +202,7 @@ const handleTextSelection = async (tooltipElement) => {
     focusNodeIndex, //recreated focusNodeIndex
   }
 
-  chrome.storage.local.set({ selectedTextData: selectedTextByPage }); //There is a bug caused by this.
+  chrome.storage.local.set({ selectedTextData: selectedTextByPage }); 
 };
 
 const getBookmarkByChapter = async () => {
@@ -225,7 +222,7 @@ const displayBookmark = (bookmarkByPage) => {
 
   console.log(bookmarkByPage);
 
-  const range = document.createRange();
+  //const range = document.createRange();
 
   // Get the parent node of the selection
   const parentNode = document.querySelector(`.${bookmarkByPage.parentClass}`);
@@ -239,22 +236,7 @@ const displayBookmark = (bookmarkByPage) => {
 
   console.log(`anchorOffset: ${anchorOffset}, focusOffset: ${focusOffset}`);
   
-  if((anchorNode === focusNode) && (bookmarkByPage.anchorOffset < bookmarkByPage.focusOffset)){
-    range.setStart(anchorNode, anchorOffset);
-    range.setEnd(focusNode, focusOffset);
-  }else if((anchorNode === focusNode) && (bookmarkByPage.anchorOffset >= bookmarkByPage.focusOffset)){      
-    range.setStart(focusNode, focusOffset);
-    range.setEnd(anchorNode, anchorOffset);
-  }
-
-  if((anchorNode !== focusNode) && (anchorNode.compareDocumentPosition(focusNode) & Node.DOCUMENT_POSITION_FOLLOWING)){
-    range.setStart(anchorNode, anchorOffset);
-    range.setEnd(focusNode, focusOffset);
-  }else if((anchorNode !== focusNode) && !(anchorNode.compareDocumentPosition(focusNode) & Node.DOCUMENT_POSITION_FOLLOWING)){
-    range.setStart(focusNode, focusOffset);
-    range.setEnd(anchorNode, anchorOffset);
-  }
-
+  const range = modifiedRange({ anchorNode, anchorOffset, focusNode, focusOffset }, bookmarkByPage);
 
   if(!range.collapsed){
     console.log("range not collapsed");
@@ -267,6 +249,30 @@ const displayBookmark = (bookmarkByPage) => {
 
     range.insertNode(markElement);
   }
+}
+
+const modifiedRange = ({ anchorNode, anchorOffset, focusNode, focusOffset }, selectionObject) => {
+
+  const range = document.createRange();
+
+  if((anchorNode === focusNode) && (selectionObject.anchorOffset < selectionObject.focusOffset)){
+    range.setStart(anchorNode, anchorOffset);
+    range.setEnd(focusNode, focusOffset);
+  }else if((anchorNode === focusNode) && (selectionObject.anchorOffset >= selectionObject.focusOffset)){      
+    range.setStart(focusNode, focusOffset);
+    range.setEnd(anchorNode, anchorOffset);
+  }
+
+  if((anchorNode !== focusNode) && (anchorNode.compareDocumentPosition(focusNode) & Node.DOCUMENT_POSITION_FOLLOWING)){
+    range.setStart(anchorNode, anchorOffset);
+    range.setEnd(focusNode, focusOffset);
+  }else if((anchorNode !== focusNode) && !(anchorNode.compareDocumentPosition(focusNode) & Node.DOCUMENT_POSITION_FOLLOWING)){
+    console.log("Else statement ran.");
+    range.setStart(focusNode, focusOffset);
+    range.setEnd(anchorNode, anchorOffset);
+  }
+
+  return range;
 }
 
 const handleBookmarkSelection = (e) => {

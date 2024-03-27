@@ -53,7 +53,7 @@ const updateBookmarkList = (bookmarks) => {
    element.querySelector(".work-author").textContent = bookmarks[bookmark].authorName;
 
    element.querySelector(".delete-work").addEventListener("click", (e) => { deleteBookmark(bookmarks[bookmark].workNumber); });
-  
+
     anchor.addEventListener("click", (e) => {
       e.preventDefault();
       chrome.tabs.create({ url: anchor.href });
@@ -80,7 +80,6 @@ const updateBadge = (bookmarks) => {
   }
 }
 
-
 readingTimeCheckbox.addEventListener("change", async (e) => { 
   console.log("readingTimeCheckbox event listener"); 
 
@@ -92,20 +91,6 @@ readingTimeCheckbox.addEventListener("change", async (e) => {
     }
   });
 });
-
-function onBookmarkLinkClick(event) {
-  // Prevent the default action
-  event.preventDefault();
-
-  // Get the id of the bookmarked element from the link
-  const bookmarkId = event.target.dataset.bookmarkId;
-
-  // Get the bookmarked element
-  const bookmarkedElement = document.getElementById(bookmarkId);
-
-  // Scroll to the bookmarked element
-  bookmarkedElement.scrollIntoView({ behavior: 'smooth' });
-}
 
 // Add the event listener to the bookmark link
 //bookmarkLink.addEventListener('click', onBookmarkLinkClick);

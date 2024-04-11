@@ -1,6 +1,5 @@
 /*
 - Finish the tooltip and changeTooltipLocation methods.
-- Add JavaScript to properly center the tooltip relative to the selected or bookmarked text.
 */
 
 
@@ -25,10 +24,8 @@ export const createTooltip = (buttonMsg, callback) => {
   if(!btnDiv.hasClickListener){
     btnDiv.addEventListener("click", e => {
       e.stopPropagation();
-      console.log("Button test");
 
       callback(e);
-
     });
     btnDiv.hasClickListener = true;
   }

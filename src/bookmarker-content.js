@@ -54,8 +54,6 @@ const removeBookmark = (e) => {
 
 const addBookmark = async (e) => {
 
-  console.log("addBookmark() called.");
-
   //VIOLATION OF SINGLE RESPONSIBILITY PRINCIPLE?
 
   // REPLACING THE SELECTEDTEXT CLASS WITH THE BOOKMARKEDTEXT CLASS
@@ -65,20 +63,33 @@ const addBookmark = async (e) => {
   selectedText.classList.remove("selectedText");
   selectedText.classList.add("bookmarkedText");
 
-  const { anchorOffset, anchorNodeIndex, focusOffset, focusNodeIndex } = await selectedTextData();
+  const { 
+    anchorOffset, 
+    anchorNodeIndex, 
+    anchorNodeClass,
+    focusOffset, 
+    focusNodeIndex,
+    focusNodeClass 
+  } = await selectedTextData();
   //
 
   // ADDING EVENT LISTENER TO THE SELECTEDTEXT ELEMENT
   selectedText.addEventListener("click", e => { handleBookmarkSelection(e) });
   //
 
-  const parentClass = selectedText.parentNode.className;
+  const parentClass = selectedText.parentNode.closest('P').className; //selectedText.parentNode.className;
+  console.log(parentClass);
+  /*
+    - get the node class for the anchor node
+    - get the node class for the focus node
+  */
+
+  //CHANGE THE PARENTCLASS NAME FOR NON-TEXT NODES
 
   removeTooltip(selectedText);
 
   // GETTING THE INDEX OF THE ANCHOR AND FOCUS NODES TO PUT INTO LOCAL STORAGE
-  //const childNodesArray = Array.from(parentNode.childNodes);
-  //
+  
 
   // GETTING THE WORK NUMBER AND CHAPTER NUMBER FROM THE URL TO PUT INTO LOCAL STORAGE
   const { workNumber, urlChapterNumber, pageChapterNumber } = getChapterFromURL(window.location.href);
@@ -93,6 +104,8 @@ const addBookmark = async (e) => {
     urlChapterNumber,
     pageChapterNumber,
     parentClass,
+    anchorNodeClass,
+    focusNodeClass,
     anchorOffset,
     anchorNodeIndex,
     focusOffset,
@@ -121,13 +134,8 @@ const selectedTextData = async () => {
 const handleTextSelection = async (tooltipElement) => {
   //VIOLATION OF SINGLE RESPONSIBILITY PRINCIPLE?
 
-  console.log("handleTextSelection() called.");
-
   const selectionObject = document.getSelection();
-
   console.log(selectionObject);
-
-  console.log(`selectionObject.anchorOffset: ${selectionObject.anchorOffset}`, `selectionObject.focusOffset: ${selectionObject.focusOffset}`);
 
   const { 
     anchorOffset,
@@ -139,37 +147,30 @@ const handleTextSelection = async (tooltipElement) => {
   console.log(`anchorOffset: ${anchorOffset}, anchorNodeIndex: ${anchorNodeIndex}, focusOffset: ${focusOffset}, focusNodeIndex: ${focusNodeIndex}`);
 
   const anchorNode = selectionObject.anchorNode;
-  //const anchorOffset = selectionObject.anchorOffset;
   const focusNode = selectionObject.focusNode;
-  //const focusOffset = selectionObject.focusOffset;
 
-  console.log(`anchorNode.textContent.length: ${anchorNode.textContent.length}`);
-  console.log(`focusNode.textContent.length: ${focusNode.textContent.length}`);
-
-  //const range = document.createRange();
+  console.log(anchorNode);
+  console.log(focusNode);
 
   const commonAncestorNode = selectionObject.getRangeAt(0).commonAncestorContainer;
 
   // ADDS THE SELECTEDTEXT CLASS TO THE SPAN ELEMENT AROUND THE SELECTED RANGE OF TEXT
 
   //Account for a special element (like span or em) being the only child element of a paragraph.
-
-  console.log(`anchorOffset === selectionObject.anchorOffset: ${anchorOffset === selectionObject.anchorOffset}`);
-  console.log(`focusOffset === selectionObject.focusOffset: ${focusOffset === selectionObject.focusOffset}`);
   
   if(commonAncestorNode.nodeName === "P" || commonAncestorNode.contains(anchorNode) && commonAncestorNode.contains(focusNode)){
 
     //if anchorNode and focusNode are nodes other than text nodes
 
-    /*
+    let range;
     if(anchorOffset === selectionObject.anchorOffset && focusOffset === selectionObject.focusOffset){
-      //use selectionObject.anchorOffset and selectionObject.focusOffset 
+      range = modifiedRange({ anchorNode, anchorOffset, focusNode, focusOffset }, selectionObject);
     }else{
-      //use anchorOffset and focusOffset
-    }
-    */
+      const originalAnchorOffset = selectionObject.anchorOffset;
+      const originalFocusOffset = selectionObject.focusOffset;
 
-    const range = modifiedRange({ anchorNode, anchorOffset, focusNode, focusOffset }, selectionObject);
+      range = modifiedRange({ anchorNode, anchorOffset: originalAnchorOffset, focusNode, focusOffset: originalFocusOffset }, selectionObject);
+    }
 
     const anchorParagraph = anchorNode.parentNode.nodeName === 'P' ? anchorNode.parentNode : anchorNode.parentNode.closest('P');
     const focusParagraph = focusNode.parentNode.nodeName === 'P' ? focusNode.parentNode : focusNode.parentNode.closest('P');
@@ -194,12 +195,14 @@ const handleTextSelection = async (tooltipElement) => {
   - find a way to have both the original node indices and offsets and the recalculated ones (to be stored).
   */
 
-  
   const selectedTextByPage = {
     anchorOffset, //recreated anchorOffset 
     anchorNodeIndex, //recreated anchorNodeIndex
+    anchorNodeClass: anchorNode.parentNode.className,
     focusOffset, //recreated focusOffset
     focusNodeIndex, //recreated focusNodeIndex
+    focusNodeClass: focusNode.parentNode.className,
+    parentClass: commonAncestorNode.className //
   }
 
   chrome.storage.local.set({ selectedTextData: selectedTextByPage }); 
@@ -222,14 +225,39 @@ const displayBookmark = (bookmarkByPage) => {
 
   console.log(bookmarkByPage);
 
-  //const range = document.createRange();
-
   // Get the parent node of the selection
   const parentNode = document.querySelector(`.${bookmarkByPage.parentClass}`);
 
-  // Get the first and last child elements within the selection
-  const anchorNode = parentNode.childNodes[bookmarkByPage.anchorNodeIndex];
-  const focusNode = parentNode.childNodes[bookmarkByPage.focusNodeIndex];
+  console.log(parentNode.childNodes);
+  // CHANGE THIS WHEN THERE'S A NON-TEXT NODE
+  /*
+- If it’s the same parent node class for them, it should work like it usually does.
+
+- Regarding the situation of it not being the same parent node class for both of them
+    - You will most likely have to recursively reach the text content of that child node, 
+    and hopefully that should work (since the modifiedRange method takes different nodes into account).
+  */
+
+  let anchorNode = parentNode.childNodes[bookmarkByPage.anchorNodeIndex]; //This assumes this is a text node.
+  let focusNode = parentNode.childNodes[bookmarkByPage.focusNodeIndex]; //This assumes this is a text node.
+
+  console.log(parentNode);
+
+  console.log(parentNode.nodeName);
+
+  console.log(`bookmarkByPage.anchorNodeIndex: ${bookmarkByPage.anchorNodeIndex}`);
+  console.log(`bookmarkByPage.focusNodeIndex: ${bookmarkByPage.focusNodeIndex}`);
+
+  console.log(anchorNode);
+  console.log(focusNode);
+
+
+  if(anchorNode.nodeType === 1) anchorNode = anchorNode.firstChild;
+
+  if(focusNode.nodeType === 1) focusNode = focusNode.firstChild;
+  //if the anchor or focus node is an element node, get the first child of that element node
+
+  console.log(anchorNode.nodeType, focusNode.nodeType);
 
   const anchorOffset = bookmarkByPage.anchorOffset;
   const focusOffset = bookmarkByPage.focusOffset;
@@ -263,11 +291,12 @@ const modifiedRange = ({ anchorNode, anchorOffset, focusNode, focusOffset }, sel
     range.setEnd(anchorNode, anchorOffset);
   }
 
+  console.log(anchorNode);
+
   if((anchorNode !== focusNode) && (anchorNode.compareDocumentPosition(focusNode) & Node.DOCUMENT_POSITION_FOLLOWING)){
     range.setStart(anchorNode, anchorOffset);
     range.setEnd(focusNode, focusOffset);
   }else if((anchorNode !== focusNode) && !(anchorNode.compareDocumentPosition(focusNode) & Node.DOCUMENT_POSITION_FOLLOWING)){
-    console.log("Else statement ran.");
     range.setStart(focusNode, focusOffset);
     range.setEnd(anchorNode, anchorOffset);
   }
@@ -283,7 +312,8 @@ const handleBookmarkSelection = (e) => {
   if(tooltipElement == null){
     const newTooltipElement = createTooltip("-", removeBookmark);
 
-    const bookmarkedElement = e.target;
+    const bookmarkedElement = e.target.closest(".bookmarkedText");
+
     bookmarkedElement.appendChild(newTooltipElement);
   }
   //
@@ -291,6 +321,18 @@ const handleBookmarkSelection = (e) => {
 
 addIds();
 getBookmarkByChapter();
+
+window.addEventListener("load", async () => {
+  const { bookmarks } = await chrome.storage.local.get("bookmarks");
+  const { workNumber } = getChapterFromURL(window.location.href);
+  const bookmarkByPage = bookmarks[workNumber];
+
+  if(bookmarkByPage === undefined || bookmarkByPage == null) return;
+
+  const parentNode =  document.querySelector(`.${bookmarkByPage.parentClass}`);
+
+  parentNode.scrollIntoView(true);
+});
 
 const chapter = document.querySelector("#workskin").querySelector("#chapters");
 

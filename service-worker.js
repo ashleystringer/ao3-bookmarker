@@ -1,18 +1,15 @@
 console.log("service-worker.js");
 
 // Save default API suggestions
-chrome.runtime.onInstalled.addListener(async ({ reason }) => {
-  if (reason === "install") {
-    chrome.storage.local.set({
-      isReadingTimeOn: true
-    });
-    chrome.action.setBadgeText({ text: "0" });
-  }
-});
 
-chrome.commands.onCommand.addListener(command => {
-  console.log("chrome.commands.onCommand");
-  if (command === "toggle-popup") {
-    chrome.browserAction.openPopup();
-  }
+chrome.runtime.onInstalled.addListener(async () => {
+  chrome.storage.local.set({
+    isReadingTimeOn: true
+  });
+
+  const { bookmarks } = await chrome.storage.local.get("bookmarks");
+
+  chrome.action.setBadgeBackgroundColor({ color: "#FF0000"});
+  chrome.action.setBadgeTextColor({ color: "#FFFFFF"});
+  chrome.action.setBadgeText({ text: `${Object.keys(bookmarks).length}` });
 });

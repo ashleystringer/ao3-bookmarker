@@ -88,10 +88,9 @@ export async function calculateSelectionData(selection) {
   const selectionAnchorOffset = selection.anchorOffset;
   const selectionFocusOffset = selection.focusOffset;
 
-  let childNodeArrayAnchor = Array.from(selection.anchorNode.parentNode.childNodes);
-  let anchorNodeIndex = childNodeArrayAnchor.indexOf(selection.anchorNode);
-  let childNodeArrayFocus = Array.from(selection.focusNode.parentNode.childNodes);
-  let focusNodeIndex = childNodeArrayFocus.indexOf(selection.focusNode);
+  let anchorNodeIndex = getNodeIndex(selection.anchorNode);
+  let focusNodeIndex = getNodeIndex(selection.focusNode);
+  
 
   // Check if there is bookmarked text in the same paragraph as the selection
   // Check if the selected text is in the same child element as the bookmarked text (How would I do that?)
@@ -105,24 +104,26 @@ export async function calculateSelectionData(selection) {
 
   if (!bookmarkedText) return selectionData; 
 
+  if (bookmarkedText.closest("P") !== selection.anchorNode.parentNode.closest('P')) return selectionData;
 
   if (selection.focusNode.compareDocumentPosition(bookmarkedText) & Node.DOCUMENT_POSITION_FOLLOWING) return selectionData;
-
 
   const { bookmarks } = await chrome.storage.local.get("bookmarks");
   const { workNumber } = getChapterFromURL(window.location.href);
   const bookmarkByPage = bookmarks[workNumber];
 
   let recalculatedAnchorOffset = -1;
-  let recalculatedAnchorNodeIndex = anchorNodeIndex - 2;
+  let recalculatedAnchorNodeIndex = 0;
   let recalculatedFocusOffset = -1;
-  let recalculatedFocusNodeIndex = focusNodeIndex - 2;
+  let recalculatedFocusNodeIndex = 0;
 
   if (selection.anchorNode.previousSibling !== bookmarkedText){
+    
     const boomarkedTextParent = Array.from(bookmarkedText.parentNode.childNodes);
     const bookmarkedTextIndex = boomarkedTextParent.indexOf(bookmarkedText);
     let distanceFromBookmark = (anchorNodeIndex - bookmarkedTextIndex) - 1;
     recalculatedAnchorNodeIndex = bookmarkByPage.focusNodeIndex + distanceFromBookmark;
+    //find a way to account for non-text elements
     distanceFromBookmark = focusNodeIndex - anchorNodeIndex; //focusNodeIndex - bookmarkedTextIndex
     recalculatedFocusNodeIndex = recalculatedAnchorNodeIndex + distanceFromBookmark;
     
@@ -171,3 +172,18 @@ export async function calculateSelectionData(selection) {
     focusOffset: recalculatedFocusOffset
   };
 }
+
+function getNodeIndex(node){
+  let childNodeArray;
+  let nodeIndex;
+
+  if (node.parentNode.nodeName === 'P'){
+    childNodeArray = Array.from(node.parentNode.childNodes);
+    nodeIndex = childNodeArray.indexOf(node);
+  }else if (node.parentNode.nodeName !== 'P'){
+    childNodeArray = Array.from(node.parentNode.closest("P").childNodes);
+    nodeIndex = childNodeArray.indexOf(node.parentNode);
+  }
+
+  return nodeIndex;
+} //get original node index of a non-text node

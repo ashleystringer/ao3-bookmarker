@@ -70,6 +70,23 @@ const deleteBookmark =  async (workNumber) => {
   chrome.storage.local.set({ bookmarks });
   updateBookmarkList(bookmarks);
 };
+/*
+const updateBadge = async (bookmarks) => {
+
+  const { bookmarks } = await chrome.storage.local.get("bookmarks");
+
+
+  console.log(`number of bookmarks: ${Object.keys(bookmarks).length}`);
+  chrome.stotage.local.set({bookmarks});
+  if(Object.keys(bookmarks).length > 0){
+    chrome.action.setBadgeText({text: `${Object.keys(bookmarks).length}`});
+  }else{
+    chrome.action.setBadgeText({text: ""});
+  }
+  
+  chrome.storage.local.set({bookmarkCount: Object.keys(bookmarks).length});
+}
+*/
 
 const updateBadge = (bookmarks) => {
   console.log(`number of bookmarks: ${Object.keys(bookmarks).length}`);

@@ -1,5 +1,5 @@
 import { addIds, getChapterFromURL, removeMarkElement, calculateSelectionData } from "./utils.js";
-import { createTooltip, removeTooltip } from "./tooltip.js";
+import { createTooltip, removeTooltip, findTooltipLocation } from "./tooltip.js";
 
 function handleSelectedTextOption(targetElement, selectedTextElement, tooltipElement) {
   if (!selectedTextElement.contains(targetElement) && !tooltipElement.contains(targetElement)) {
@@ -16,7 +16,9 @@ function handleBookmarkedTextOption(targetElement, bookmarkedText, tooltipElemen
   if (!bookmarkedText.contains(targetElement) && tooltipElement && !tooltipElement.contains(targetElement)) {
     removeTooltip(bookmarkedText);
   } else if (!bookmarkedText.contains(targetElement) && !tooltipElement && !isSelectionCollapsed) {
+    //parentElement
     const tooltipElement = createTooltip("?", replaceBookmark);
+    //!!!!!! const tooltipElement = createTooltip("?", replaceBookmark, bookmarkedText); !!!!!!
     handleTextSelection(tooltipElement);
   } else if (bookmarkedText.contains(targetElement) && !isSelectionCollapsed) {
     console.log("bookmarkedText && bookmarkedText.contains(targetElement) && !isSelectionCollapsed");
@@ -187,6 +189,8 @@ const handleTextSelection = async (tooltipElement) => {
       markElement.appendChild(tooltipElement);
   
       range.insertNode(markElement);
+
+      findTooltipLocation(markElement, tooltipElement);
     }
   }
 
@@ -310,11 +314,16 @@ const handleBookmarkSelection = (e) => {
   const tooltipElement = document.querySelector(".tooltip");
 
   if(tooltipElement == null){
+    //parentElement
     const newTooltipElement = createTooltip("-", removeBookmark);
 
     const bookmarkedElement = e.target.closest(".bookmarkedText");
 
+    //!!!!!! const newTooltipElement = createTooltip("-", removeBookmark, bookmarkedElement); !!!!!!
+
     bookmarkedElement.appendChild(newTooltipElement);
+
+    findTooltipLocation(bookmarkedElement, newTooltipElement);
   }
   //
 }
@@ -351,7 +360,9 @@ chapter.addEventListener("mouseup", e => {
     handleBookmarkedTextOption(e.target, bookmarkedText, tooltipElement, isSelectionCollapsed);
   }else{
     //This needs to exist in order to create selectedTextElement in the first place
-    const tooltipElement = createTooltip("+", addBookmark);
+    //parentElement
+    const tooltipElement = createTooltip("+", addBookmark); //?
+    //!!!!!! const tooltipElement = createTooltip("+", addBookmark, parentElement); !!!!!!
     handleTextSelection(tooltipElement);
   }
 });

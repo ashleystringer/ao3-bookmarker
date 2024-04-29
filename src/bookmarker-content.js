@@ -151,9 +151,6 @@ const handleTextSelection = async (tooltipElement) => {
   const anchorNode = selectionObject.anchorNode;
   const focusNode = selectionObject.focusNode;
 
-  console.log(anchorNode);
-  console.log(focusNode);
-
   const commonAncestorNode = selectionObject.getRangeAt(0).commonAncestorContainer;
 
   // ADDS THE SELECTEDTEXT CLASS TO THE SPAN ELEMENT AROUND THE SELECTED RANGE OF TEXT

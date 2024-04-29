@@ -1,5 +1,9 @@
 body {
-    width: 20rem;
+    min-width: 290px;
+}
+
+input[type=checkbox] {
+    cursor: pointer;
 }
 
 ul {

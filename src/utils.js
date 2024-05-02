@@ -121,9 +121,26 @@ export async function calculateSelectionData(selection) {
 
   if (selection.anchorNode.previousSibling !== bookmarkedText){
     
+    /*
+    - for bookmarked texts that in nested elements in a paragraph, 
+    - the indices of the root top elements in the paragraph aren't altered
+    - and so, they can just be referenced without finding their distances from the bookmark
+    */
+
+    
+    if (bookmarkedText.nodeName !== 'P'){
+      return {
+        anchorNodeIndex,
+        focusNodeIndex,
+        anchorOffset: selection.anchorOffset,
+        focusOffset: selection.focusOffset
+      };
+    }
+  
+
     const boomarkedTextParent = Array.from(bookmarkedText.parentNode.childNodes);
     const bookmarkedTextIndex = boomarkedTextParent.indexOf(bookmarkedText);
-    let distanceFromBookmark = (anchorNodeIndex - bookmarkedTextIndex) - 1;
+    let distanceFromBookmark = (anchorNodeIndex - bookmarkedTextIndex) - 1; //the structure is inherently different from the original structure
     recalculatedAnchorNodeIndex = bookmarkByPage.focusNodeIndex + distanceFromBookmark;
     //find a way to account for non-text elements
     distanceFromBookmark = focusNodeIndex - anchorNodeIndex; //focusNodeIndex - bookmarkedTextIndex
@@ -135,6 +152,7 @@ export async function calculateSelectionData(selection) {
       anchorOffset: selection.anchorOffset,
       focusOffset: selection.focusOffset
     };
+
   }
 
   recalculatedAnchorNodeIndex = bookmarkByPage.focusNodeIndex;

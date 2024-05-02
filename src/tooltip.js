@@ -49,11 +49,7 @@ export const removeTooltip = (parentElement) => {
 }
 
 export const findTooltipLocation = (element, tooltip) => {
-
-  console.log(tooltip);
-
-  //tooltip.style.left = `${element.getBoundingClientRect().left}px`;
-
+  
   if (isTooltipUnderViewport(element)){
     tooltip.style.top = `${element.getBoundingClientRect().bottom}px`; //`-120%`
     tooltip.classList.remove("default");

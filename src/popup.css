@@ -2,6 +2,15 @@ body {
     min-width: 290px;
 }
 
+.popup-title {
+    text-align: center;
+    font-size: medium;
+}
+
+.reading-time-feature {
+    margin-top: 2px;
+}
+
 input[type=checkbox] {
     cursor: pointer;
 }
@@ -23,6 +32,7 @@ li:nth-child(even) {
 .work-entry {
     display: flex;
     justify-content: space-between;
+    padding: 1.75px;
 }
 
 .work-title {
@@ -31,14 +41,23 @@ li:nth-child(even) {
     color: #222;
 }
 
+.work-title:hover {
+    color: #555;
+}
+
 .work-author {
     font-style: italic;
     text-decoration: none;
     color: #444;
 }
 
+.work-author:hover {
+    color: #666;
+}
+
 .delete-work {
     font-weight: bold;
     cursor: pointer;
     border: none;
+    color: #7e0101;
 }

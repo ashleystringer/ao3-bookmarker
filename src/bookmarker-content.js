@@ -72,7 +72,7 @@ const addBookmark = async (e) => {
     focusNodeClass 
   } = await selectedTextData();
   //
-
+ 
   // ADDING EVENT LISTENER TO THE SELECTEDTEXT ELEMENT
   selectedText.addEventListener("click", e => { handleBookmarkSelection(e) });
   //
@@ -136,6 +136,11 @@ const handleTextSelection = async (tooltipElement) => {
 
   const selectionObject = document.getSelection();
   console.log(selectionObject);
+
+  
+  let childNodeArray = Array.from(selectionObject.anchorNode.parentNode.closest("P").childNodes);
+  let nodeIndex = childNodeArray.indexOf(selectionObject.anchorNode.parentNode);
+  console.log(nodeIndex);
 
   const { 
     anchorOffset,
@@ -211,10 +216,12 @@ const getBookmarkByChapter = async () => {
   const { bookmarks } = await chrome.storage.local.get("bookmarks");
   console.log(bookmarks);
 
-  const { workNumber, chapterNumber } = getChapterFromURL(window.location.href);
+  const { workNumber, pageChapterNumber } = getChapterFromURL(window.location.href);
   const bookmarkByPage = bookmarks[workNumber];
 
-  if(bookmarkByPage && bookmarkByPage?.chapterNumber === chapterNumber){  
+  console.log(`bookmarkByPage.pageChapterNumber: ${bookmarkByPage.pageChapterNumber}`);
+
+  if(bookmarkByPage && bookmarkByPage?.pageChapterNumber === pageChapterNumber){  
     displayBookmark(bookmarkByPage);
   }
 }
@@ -227,7 +234,7 @@ const displayBookmark = (bookmarkByPage) => {
   // Get the parent node of the selection
   const parentNode = document.querySelector(`.${bookmarkByPage.parentClass}`);
 
-  console.log(parentNode.childNodes);
+  //console.log(parentNode.childNodes);
   // CHANGE THIS WHEN THERE'S A NON-TEXT NODE
   /*
 - If it’s the same parent node class for them, it should work like it usually does.
@@ -239,17 +246,6 @@ const displayBookmark = (bookmarkByPage) => {
 
   let anchorNode = parentNode.childNodes[bookmarkByPage.anchorNodeIndex]; //This assumes this is a text node.
   let focusNode = parentNode.childNodes[bookmarkByPage.focusNodeIndex]; //This assumes this is a text node.
-
-  console.log(parentNode);
-
-  console.log(parentNode.nodeName);
-
-  console.log(`bookmarkByPage.anchorNodeIndex: ${bookmarkByPage.anchorNodeIndex}`);
-  console.log(`bookmarkByPage.focusNodeIndex: ${bookmarkByPage.focusNodeIndex}`);
-
-  console.log(anchorNode);
-  console.log(focusNode);
-
 
   if(anchorNode.nodeType === 1) anchorNode = anchorNode.firstChild;
 
@@ -325,12 +321,17 @@ getBookmarkByChapter();
 
 window.addEventListener("load", async () => {
   const { bookmarks } = await chrome.storage.local.get("bookmarks");
-  const { workNumber } = getChapterFromURL(window.location.href);
+  const { workNumber, urlChapterNumber } = getChapterFromURL(window.location.href);
   const bookmarkByPage = bookmarks[workNumber];
 
   if(bookmarkByPage === undefined || bookmarkByPage == null) return;
 
-  const parentNode =  document.querySelector(`.${bookmarkByPage.parentClass}`);
+  console.log("bookmarkByPage");
+  console.log(bookmarkByPage);
+
+  if(bookmarkByPage.urlChapterNumber !== urlChapterNumber) return; 
+
+  const parentNode = document.querySelector(`.${bookmarkByPage.parentClass}`);
 
   parentNode.scrollIntoView(true);
 });

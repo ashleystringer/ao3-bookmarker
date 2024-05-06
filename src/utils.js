@@ -208,6 +208,13 @@ function getNodeIndex(node){
   }else if (node.parentNode.nodeName !== 'P'){
     childNodeArray = Array.from(node.parentNode.closest("P").childNodes);
     nodeIndex = childNodeArray.indexOf(node.parentNode); //this is the problem?
+
+    /*
+    IDEA
+      - if node.parentNode.nodeName !== 'P'
+        - loop through children until node is found
+        - find the index
+    */
   }
 
   return nodeIndex;

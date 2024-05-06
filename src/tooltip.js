@@ -1,7 +1,3 @@
-/*
-- Finish the tooltip and changeTooltipLocation methods.
-*/
-
 
 export const createTooltip = (buttonMsg, callback) => {
   // CREATES TOOLTIP DIV
@@ -33,12 +29,6 @@ export const createTooltip = (buttonMsg, callback) => {
 
   tooltip.appendChild(btnDiv);
 
-  return tooltip;
-}
-
-export const tooltip = (buttonMsg, callback, parentElement) => {
-  const tooltip = createTooltip(buttonMsg, callback);
-  findTooltipLocation(parentElement, tooltip); //change name of this function
   return tooltip;
 }
 

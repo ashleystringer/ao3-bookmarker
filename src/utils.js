@@ -117,11 +117,30 @@ export async function calculateSelectionData(selection) {
   let recalculatedFocusOffset = -1;
   let recalculatedFocusNodeIndex = 0;
 
+  //If the anchor or focus node are element nodes, get the index this way.
+
   if (selection.anchorNode.previousSibling !== bookmarkedText){
     
+    /*
+    - for bookmarked texts that in nested elements in a paragraph, 
+    - the indices of the root top elements in the paragraph aren't altered
+    - and so, they can just be referenced without finding their distances from the bookmark
+    */
+
+    
+    if (bookmarkedText.nodeName !== 'P'){
+      return {
+        anchorNodeIndex,
+        focusNodeIndex,
+        anchorOffset: selection.anchorOffset,
+        focusOffset: selection.focusOffset
+      };
+    }
+  
+
     const boomarkedTextParent = Array.from(bookmarkedText.parentNode.childNodes);
     const bookmarkedTextIndex = boomarkedTextParent.indexOf(bookmarkedText);
-    let distanceFromBookmark = (anchorNodeIndex - bookmarkedTextIndex) - 1;
+    let distanceFromBookmark = (anchorNodeIndex - bookmarkedTextIndex) - 1; //the structure is inherently different from the original structure
     recalculatedAnchorNodeIndex = bookmarkByPage.focusNodeIndex + distanceFromBookmark;
     //find a way to account for non-text elements
     distanceFromBookmark = focusNodeIndex - anchorNodeIndex; //focusNodeIndex - bookmarkedTextIndex
@@ -133,7 +152,11 @@ export async function calculateSelectionData(selection) {
       anchorOffset: selection.anchorOffset,
       focusOffset: selection.focusOffset
     };
+
   }
+
+  recalculatedAnchorNodeIndex = bookmarkByPage.focusNodeIndex;
+  recalculatedFocusNodeIndex = bookmarkByPage.focusNodeIndex + Math.abs(focusNodeIndex - anchorNodeIndex);
 
   // If the bookmarkedText has no child elements
   if (bookmarkedText.childNodes.length === 1) {
@@ -154,9 +177,6 @@ export async function calculateSelectionData(selection) {
 
     recalculatedAnchorOffset = lastChildOffset + selectionAnchorOffset;
     recalculatedFocusOffset = lastChildOffset + selectionFocusOffset;
-
-    recalculatedAnchorNodeIndex = bookmarkByPage.focusNodeIndex;
-    recalculatedFocusNodeIndex = bookmarkByPage.focusNodeIndex + Math.abs(focusNodeIndex - anchorNodeIndex);
     //BUG - This is assuming the focusNodeIndex of the selection object is what it would be without the mark element existing.
   }
 
@@ -174,6 +194,11 @@ export async function calculateSelectionData(selection) {
 }
 
 function getNodeIndex(node){
+
+  /*
+  // A bug is here in the case of element nodes containing span tags
+  */
+
   let childNodeArray;
   let nodeIndex;
 
@@ -182,7 +207,14 @@ function getNodeIndex(node){
     nodeIndex = childNodeArray.indexOf(node);
   }else if (node.parentNode.nodeName !== 'P'){
     childNodeArray = Array.from(node.parentNode.closest("P").childNodes);
-    nodeIndex = childNodeArray.indexOf(node.parentNode);
+    nodeIndex = childNodeArray.indexOf(node.parentNode); //this is the problem?
+
+    /*
+    IDEA
+      - if node.parentNode.nodeName !== 'P'
+        - loop through children until node is found
+        - find the index
+    */
   }
 
   return nodeIndex;

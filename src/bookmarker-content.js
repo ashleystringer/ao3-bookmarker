@@ -16,9 +16,7 @@ function handleBookmarkedTextOption(targetElement, bookmarkedText, tooltipElemen
   if (!bookmarkedText.contains(targetElement) && tooltipElement && !tooltipElement.contains(targetElement)) {
     removeTooltip(bookmarkedText);
   } else if (!bookmarkedText.contains(targetElement) && !tooltipElement && !isSelectionCollapsed) {
-    //parentElement
     const tooltipElement = createTooltip("?", replaceBookmark);
-    //!!!!!! const tooltipElement = createTooltip("?", replaceBookmark, bookmarkedText); !!!!!!
     handleTextSelection(tooltipElement);
   } else if (bookmarkedText.contains(targetElement) && !isSelectionCollapsed) {
     console.log("bookmarkedText && bookmarkedText.contains(targetElement) && !isSelectionCollapsed");
@@ -74,7 +72,7 @@ const addBookmark = async (e) => {
     focusNodeClass 
   } = await selectedTextData();
   //
-
+ 
   // ADDING EVENT LISTENER TO THE SELECTEDTEXT ELEMENT
   selectedText.addEventListener("click", e => { handleBookmarkSelection(e) });
   //
@@ -139,6 +137,11 @@ const handleTextSelection = async (tooltipElement) => {
   const selectionObject = document.getSelection();
   console.log(selectionObject);
 
+  
+  let childNodeArray = Array.from(selectionObject.anchorNode.parentNode.closest("P").childNodes);
+  let nodeIndex = childNodeArray.indexOf(selectionObject.anchorNode.parentNode);
+  console.log(nodeIndex);
+
   const { 
     anchorOffset,
     anchorNodeIndex,
@@ -150,9 +153,6 @@ const handleTextSelection = async (tooltipElement) => {
 
   const anchorNode = selectionObject.anchorNode;
   const focusNode = selectionObject.focusNode;
-
-  console.log(anchorNode);
-  console.log(focusNode);
 
   const commonAncestorNode = selectionObject.getRangeAt(0).commonAncestorContainer;
 
@@ -216,10 +216,12 @@ const getBookmarkByChapter = async () => {
   const { bookmarks } = await chrome.storage.local.get("bookmarks");
   console.log(bookmarks);
 
-  const { workNumber, chapterNumber } = getChapterFromURL(window.location.href);
+  const { workNumber, pageChapterNumber } = getChapterFromURL(window.location.href);
   const bookmarkByPage = bookmarks[workNumber];
 
-  if(bookmarkByPage && bookmarkByPage?.chapterNumber === chapterNumber){  
+  console.log(`bookmarkByPage.pageChapterNumber: ${bookmarkByPage.pageChapterNumber}`);
+
+  if(bookmarkByPage && bookmarkByPage?.pageChapterNumber === pageChapterNumber){  
     displayBookmark(bookmarkByPage);
   }
 }
@@ -232,7 +234,7 @@ const displayBookmark = (bookmarkByPage) => {
   // Get the parent node of the selection
   const parentNode = document.querySelector(`.${bookmarkByPage.parentClass}`);
 
-  console.log(parentNode.childNodes);
+  //console.log(parentNode.childNodes);
   // CHANGE THIS WHEN THERE'S A NON-TEXT NODE
   /*
 - If it’s the same parent node class for them, it should work like it usually does.
@@ -244,17 +246,6 @@ const displayBookmark = (bookmarkByPage) => {
 
   let anchorNode = parentNode.childNodes[bookmarkByPage.anchorNodeIndex]; //This assumes this is a text node.
   let focusNode = parentNode.childNodes[bookmarkByPage.focusNodeIndex]; //This assumes this is a text node.
-
-  console.log(parentNode);
-
-  console.log(parentNode.nodeName);
-
-  console.log(`bookmarkByPage.anchorNodeIndex: ${bookmarkByPage.anchorNodeIndex}`);
-  console.log(`bookmarkByPage.focusNodeIndex: ${bookmarkByPage.focusNodeIndex}`);
-
-  console.log(anchorNode);
-  console.log(focusNode);
-
 
   if(anchorNode.nodeType === 1) anchorNode = anchorNode.firstChild;
 
@@ -314,12 +305,9 @@ const handleBookmarkSelection = (e) => {
   const tooltipElement = document.querySelector(".tooltip");
 
   if(tooltipElement == null){
-    //parentElement
     const newTooltipElement = createTooltip("-", removeBookmark);
 
     const bookmarkedElement = e.target.closest(".bookmarkedText");
-
-    //!!!!!! const newTooltipElement = createTooltip("-", removeBookmark, bookmarkedElement); !!!!!!
 
     bookmarkedElement.appendChild(newTooltipElement);
 
@@ -333,12 +321,17 @@ getBookmarkByChapter();
 
 window.addEventListener("load", async () => {
   const { bookmarks } = await chrome.storage.local.get("bookmarks");
-  const { workNumber } = getChapterFromURL(window.location.href);
+  const { workNumber, urlChapterNumber } = getChapterFromURL(window.location.href);
   const bookmarkByPage = bookmarks[workNumber];
 
   if(bookmarkByPage === undefined || bookmarkByPage == null) return;
 
-  const parentNode =  document.querySelector(`.${bookmarkByPage.parentClass}`);
+  console.log("bookmarkByPage");
+  console.log(bookmarkByPage);
+
+  if(bookmarkByPage.urlChapterNumber !== urlChapterNumber) return; 
+
+  const parentNode = document.querySelector(`.${bookmarkByPage.parentClass}`);
 
   parentNode.scrollIntoView(true);
 });
@@ -359,10 +352,7 @@ chapter.addEventListener("mouseup", e => {
   }else if(bookmarkedText){
     handleBookmarkedTextOption(e.target, bookmarkedText, tooltipElement, isSelectionCollapsed);
   }else{
-    //This needs to exist in order to create selectedTextElement in the first place
-    //parentElement
-    const tooltipElement = createTooltip("+", addBookmark); //?
-    //!!!!!! const tooltipElement = createTooltip("+", addBookmark, parentElement); !!!!!!
+    const tooltipElement = createTooltip("+", addBookmark); 
     handleTextSelection(tooltipElement);
   }
 });

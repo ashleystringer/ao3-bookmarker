@@ -23,16 +23,65 @@
     box-sizing: border-box;
     padding: 2px;
     z-index: 999;
-    left: 50%;
-    bottom: 120%;
     opacity: 0.97;
     transform-origin: top left;
     transition: opacity 150ms;
     will-change: opacity;
 }
 
-.tooltip.faded-out {
-    opacity: 0;
+.tooltip.default {
+    left: 50%;
+    bottom: 120%;
+}
+
+.tooltip.default::after {
+    content: "";
+    position: absolute;
+    border-style: solid;
+    top: 100%;
+    left: 50%;
+    border-width: 5px;
+    margin-left: -5px;
+    border-color: #444 transparent transparent transparent;
+}
+
+.tooltip.dropdown {
+    left: 50%;
+    bottom: 120%;
+    /* The styling below is present until I find out why the browser is disabling it for this class. */
+    padding: 2px;
+    background-color: #444;
+    width: 130px;
+    height: 50px;
+}
+
+.tooltip.dropdown::after {
+    content: "";
+    position: absolute;
+    border-style: solid;
+    bottom: 100%;
+    left: 50%;
+    border-width: 5px;
+    margin-left: -5px;
+    border-color: #444 transparent transparent transparent;
+    transform: rotate(180deg);
+}
+
+/*.tooltip {
+    width: 130px;
+    height: 50px;
+    background-color: #444;
+    position: absolute;
+    display: block;
+    box-sizing: border-box;
+    padding: 2px;
+    z-index: 999;
+    left: 50%;
+    bottom: 120%;
+    opacity: 0.97;
+    transform-origin: top left;
+    transition: opacity 150ms;
+    will-change: opacity;
 }
 
 .tooltip::after {
@@ -43,8 +92,40 @@
     left: 50%;
     border-width: 5px;
     margin-left: -5px;
-    border-width: 5px;
     border-color: #444 transparent transparent transparent;
+}
+
+.dropdown-tooltip {
+    width: 130px;
+    height: 50px;
+    background-color: #444;
+    position: absolute;
+    display: block;
+    box-sizing: border-box;
+    padding: 2px;
+    z-index: 999;
+    left: 50%;
+    bottom: 120%;
+    opacity: 0.97;
+    transform-origin: top left;
+    transition: opacity 150ms;
+    will-change: opacity;
+}
+
+.dropdown-tooltip::after {
+    content: "";
+    position: absolute;
+    border-style: solid;
+    bottom: 100%;
+    left: 50%;
+    border-width: 5px;
+    margin-left: -5px;
+    border-color: #444 transparent transparent transparent;
+    transform: rotate(180deg);
+}*/
+
+.tooltip.faded-out {
+    opacity: 0;
 }
 
 .tooltip .btn {

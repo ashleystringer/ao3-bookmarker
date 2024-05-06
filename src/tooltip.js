@@ -1,12 +1,8 @@
-/*
-- Finish the tooltip and changeTooltipLocation methods.
-*/
-
 
 export const createTooltip = (buttonMsg, callback) => {
   // CREATES TOOLTIP DIV
   const tooltip = document.createElement("div");
-  tooltip.classList.add("tooltip", "faded-out");
+  tooltip.classList.add("tooltip", "default", "faded-out");
   //
 
   requestAnimationFrame(() => {
@@ -36,12 +32,6 @@ export const createTooltip = (buttonMsg, callback) => {
   return tooltip;
 }
 
-export const tooltip = (buttonMsg, callback, parentElement) => {
-  const tooltip = createTooltip(buttonMsg, callback);
-  findTooltipLocation(parentElement, tooltip); //change name of this function
-  return tooltip;
-}
-
 export const removeTooltip = (parentElement) => {
   const tooltip = parentElement.querySelector(".tooltip");
   if(tooltip == null) return;
@@ -49,22 +39,14 @@ export const removeTooltip = (parentElement) => {
 }
 
 export const findTooltipLocation = (element, tooltip) => {
-
-  console.log(element);
-
-  console.log(tooltip["after"]);
-
-  //isTooltipUnderViewport(element);
-
-  //tooltip.style.left = `${element.getBoundingClientRect().left}px`;
-
+  
   if (isTooltipUnderViewport(element)){
     tooltip.style.top = `${element.getBoundingClientRect().bottom}px`; //`-120%`
-    tooltip["after"].style.top = 0;
+    tooltip.classList.remove("default");
+    tooltip.classList.add("tooltip", "dropdown");
   }else{
     tooltip.style.bottom = `120%`;
-    tooltip["after"].style.top = `100%`;
-  
+    tooltip.classList.add("tooltip", "default");
   }
 
 }

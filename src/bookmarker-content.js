@@ -18,16 +18,27 @@ function handleBookmarkedTextOption(targetElement, bookmarkedText, tooltipElemen
   } else if (!bookmarkedText.contains(targetElement) && !tooltipElement && !isSelectionCollapsed) {
     const tooltipElement = createTooltip("?", replaceBookmark);
     handleTextSelection(tooltipElement);
+    //handleTextSelection("replace");
   } else if (bookmarkedText.contains(targetElement) && !isSelectionCollapsed) {
     console.log("bookmarkedText && bookmarkedText.contains(targetElement) && !isSelectionCollapsed");
   }
 }
 
-const replaceBookmark = (e) => {
+/*const replaceBookmark = (e) => {
   //find some way to alter selectedTextData before addBookmark is called
   removeBookmark(e);
   addBookmark(e);
+}*/
+
+
+const replaceBookmark = (selectionObject) => {
+    //**** THIS IS IN PROGRESS ****
+
+  //find some way to alter selectedTextData before addBookmark is called
+  removeBookmark();
+  addBookmark(selectionObject);
 }
+
 
 const removeBookmark = (e) => {
   //VIOLATION OF SINGLE RESPONSIBILITY PRINCIPLE?
@@ -52,7 +63,7 @@ const removeBookmark = (e) => {
 
 }
 
-const addBookmark = async (e) => {
+/*const addBookmark = async (e) => {
 
   //VIOLATION OF SINGLE RESPONSIBILITY PRINCIPLE?
 
@@ -79,11 +90,6 @@ const addBookmark = async (e) => {
 
   const parentClass = selectedText.parentNode.closest('P').className; //selectedText.parentNode.className;
   console.log(parentClass);
-  /*
-    - get the node class for the anchor node
-    - get the node class for the focus node
-  */
-
   //CHANGE THE PARENTCLASS NAME FOR NON-TEXT NODES
 
   removeTooltip(selectedText);
@@ -123,6 +129,131 @@ const addBookmark = async (e) => {
     chrome.storage.local.set({ bookmarks: bookmarks });
   });
   //
+}*/
+
+
+const addBookmark = async (selectionObject) => {
+  //**** THIS IS IN PROGRESS ****
+
+
+  //The reference to the selectedText class has to be removed as a way to add the bookmarkedText class.
+  //The range has to somehow be created and used in her.
+  //The range and the modifiedRange method are going to need the actual anchor and focus nodes.
+
+  //WHAT THIS FUNCTION TAKES AS A PARAMETER IS PROBABLY GOING TO HAVE TO CHANGE.
+    //THIS HAS IMPLICATIONS FOR HOW IT CAN BE USED IN replaceBookmark.
+
+    //const selectedTextByPage = applyBookmarkedText(selectionObject);
+
+      selectedText.addEventListener("click", e => { handleBookmarkSelection(e) });
+  //
+
+  const parentClass = selectedText.parentNode.closest('P').className; //selectedText.parentNode.className;
+  console.log(parentClass);
+  //CHANGE THE PARENTCLASS NAME FOR NON-TEXT NODES
+
+  removeTooltip(selectedText);
+
+  // GETTING THE INDEX OF THE ANCHOR AND FOCUS NODES TO PUT INTO LOCAL STORAGE
+  
+
+  // GETTING THE WORK NUMBER AND CHAPTER NUMBER FROM THE URL TO PUT INTO LOCAL STORAGE
+  const { workNumber, urlChapterNumber, pageChapterNumber } = getChapterFromURL(window.location.href);
+  //
+
+  // ADDING TO LOCAL STORAGE
+  const bookmarkByPage = {
+    authorName,
+    workURL: window.location.href,
+    workTitle,
+    workNumber,
+    urlChapterNumber,
+    pageChapterNumber,
+    parentClass,
+    anchorNodeClass,
+    focusNodeClass,
+    anchorOffset,
+    anchorNodeIndex,
+    focusOffset,
+    focusNodeIndex,
+    bookmarkedText: selectedText.textContent
+  }
+
+  console.log(bookmarkByPage);
+  
+  chrome.storage.local.get("bookmarks", (result) => {
+    let bookmarks = result.bookmarks || {};
+
+    bookmarks[workNumber] = bookmarkByPage;
+  
+    chrome.storage.local.set({ bookmarks: bookmarks });
+  });
+}
+
+const applyBookmarkedText = async (selectionObject) => {
+    //**** THIS IS IN PROGRESS ****
+
+
+  const { 
+    anchorOffset,
+    anchorNodeIndex,
+    focusOffset,
+    focusNodeIndex
+  } = await calculateSelectionData(selectionObject);
+
+  console.log(`anchorOffset: ${anchorOffset}, anchorNodeIndex: ${anchorNodeIndex}, focusOffset: ${focusOffset}, focusNodeIndex: ${focusNodeIndex}`);
+
+  const anchorNode = selectionObject.anchorNode;
+  const focusNode = selectionObject.focusNode;
+
+  const commonAncestorNode = selectionObject.getRangeAt(0).commonAncestorContainer;
+  if(commonAncestorNode.nodeName === "P" || commonAncestorNode.contains(anchorNode) && commonAncestorNode.contains(focusNode)){
+
+    //if anchorNode and focusNode are nodes other than text nodes
+
+    let range;
+    if(anchorOffset === selectionObject.anchorOffset && focusOffset === selectionObject.focusOffset){
+      range = modifiedRange({ anchorNode, anchorOffset, focusNode, focusOffset }, selectionObject);
+    }else{
+      const originalAnchorOffset = selectionObject.anchorOffset;
+      const originalFocusOffset = selectionObject.focusOffset;
+
+      range = modifiedRange({ anchorNode, anchorOffset: originalAnchorOffset, focusNode, focusOffset: originalFocusOffset }, selectionObject);
+    }
+
+    const anchorParagraph = anchorNode.parentNode.nodeName === 'P' ? anchorNode.parentNode : anchorNode.parentNode.closest('P');
+    const focusParagraph = focusNode.parentNode.nodeName === 'P' ? focusNode.parentNode : focusNode.parentNode.closest('P');
+  
+    if (anchorParagraph !== focusParagraph) return;
+
+    if(!range.collapsed){
+      console.log("range not collapsed");
+
+      const markElement = document.createElement("mark");
+      markElement.className = "selectedText";
+    
+      markElement.appendChild(range.extractContents());
+      markElement.appendChild(tooltipElement);
+  
+      range.insertNode(markElement);
+
+      findTooltipLocation(markElement, tooltipElement);
+    }
+
+  const selectedTextByPage = {
+    anchorOffset, //recreated anchorOffset 
+    anchorNodeIndex, //recreated anchorNodeIndex
+    anchorNodeClass: anchorNode.parentNode.className,
+    focusOffset, //recreated focusOffset
+    focusNodeIndex, //recreated focusNodeIndex
+    focusNodeClass: focusNode.parentNode.className,
+    parentClass: commonAncestorNode.className //
+  }
+
+  //chrome.storage.local.set({ selectedTextData: selectedTextByPage }); 
+
+  return selectedTextByPage;
+  }
 }
 
 const selectedTextData = async () => {
@@ -131,7 +262,7 @@ const selectedTextData = async () => {
   return selectedTextData
 }
 
-const handleTextSelection = async (tooltipElement) => {
+/*const handleTextSelection = async (tooltipElement) => {
   //VIOLATION OF SINGLE RESPONSIBILITY PRINCIPLE?
 
   const selectionObject = document.getSelection();
@@ -194,11 +325,6 @@ const handleTextSelection = async (tooltipElement) => {
     }
   }
 
-  /*
-  - In the chase of a selection that's within the same child element as bookmarkedText,
-  - find a way to have both the original node indices and offsets and the recalculated ones (to be stored).
-  */
-
   const selectedTextByPage = {
     anchorOffset, //recreated anchorOffset 
     anchorNodeIndex, //recreated anchorNodeIndex
@@ -210,7 +336,39 @@ const handleTextSelection = async (tooltipElement) => {
   }
 
   chrome.storage.local.set({ selectedTextData: selectedTextByPage }); 
-};
+};*/
+
+
+const handleTextSelection = async (tooltipType) => { //use tooltipType to create tooltip
+  //**** THIS IS IN PROGRESS ****
+
+  const selectionObject = document.getSelection();
+  const selectionObjectRect = document.getSelection().getRangeAt().getBoundingClientRect();
+
+
+  let tooltip; 
+
+  if (tooltipType === "add"){
+    tooltip = createTooltip("+", () => addBookmark(selectionObject));
+  }else if (tooltipType === "replace") {
+    tooltip = createTooltip("?", () => replaceBookmark(selectionObject));
+  }
+
+  tooltip.style.top = selectionObjectRect.bottom + window.scrollY + "px";
+  tooltip.style.left = (selectionObjectRect.left + selectionObjectRect.right) / 2 + "px";
+
+  document.body.appendChild(tooltip); 
+
+  //Find the corresponding node indices and offsets using calculateSelectionData.
+  //Store this data in selectedTextByPage.
+  //Add the tooltip to the document body, adjusting its location to appear near the selected text
+    //- I'm probably going to need to fully create the tooltip in here rather than take it a parameter. (?)
+    //- Which method gets attached to the tooltip (either addBookmark or replaceBookmark) is probably
+      //- going to have to be decided in this method (or in a new method for this).
+    //- This is because the selection object is probably going to have to be passed into either of these methods. 
+  //This gets rid of having to use range.
+}
+
 
 const getBookmarkByChapter = async () => {
   const { bookmarks } = await chrome.storage.local.get("bookmarks");
@@ -354,5 +512,6 @@ chapter.addEventListener("mouseup", e => {
   }else{
     const tooltipElement = createTooltip("+", addBookmark); 
     handleTextSelection(tooltipElement);
+    //handleTextSelection("add");
   }
 });

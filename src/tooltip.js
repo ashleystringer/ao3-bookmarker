@@ -33,25 +33,30 @@ export const createTooltip = (buttonMsg, callback) => {
 }
 
 export const removeTooltip = (parentElement) => {
-  const tooltip = parentElement.querySelector(".tooltip");
+  //**** THIS IS IN PROGRESS ****
+
+  const tooltip = document.body.querySelector(".tooltip");
   if(tooltip == null) return;
-  parentElement.removeChild(tooltip);
+  document.body.removeChild(tooltip);
 }
 
-export const findTooltipLocation = (element, tooltip) => {
-  
-  if (isTooltipUnderViewport(element)){
-    tooltip.style.top = `${element.getBoundingClientRect().bottom}px`; //`-120%`
+export const findTooltipLocation = (elementRect, tooltip) => {
+
+    //**** THIS IS IN PROGRESS ****
+  if (isTooltipUnderViewport(elementRect)){
+    tooltip.style.top = elementRect.bottom + window.scrollY + "px";
+    tooltip.style.left = (elementRect.left + elementRect.right) / 2 + "px";
     tooltip.classList.remove("default");
     tooltip.classList.add("tooltip", "dropdown");
   }else{
-    tooltip.style.bottom = `120%`;
+    tooltip.style.top = elementRect.top + window.scrollY - 80 + "px";
+    tooltip.style.left = (elementRect.left + elementRect.right) / 2 + "px";
     tooltip.classList.add("tooltip", "default");
   }
 
 }
 
-function isTooltipUnderViewport(element){
-  const rect = element.getBoundingClientRect();
-  if (rect.top <= 55) return true;
+function isTooltipUnderViewport(elementRect){
+  //const rect = element.getBoundingClientRect();
+  if (elementRect.top <= 55) return true;
 }

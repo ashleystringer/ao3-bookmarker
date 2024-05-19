@@ -206,8 +206,15 @@ function getNodeIndex(node){
     childNodeArray = Array.from(node.parentNode.childNodes);
     nodeIndex = childNodeArray.indexOf(node);
   }else if (node.parentNode.nodeName !== 'P'){
-    childNodeArray = Array.from(node.parentNode.closest("P").childNodes);
-    nodeIndex = childNodeArray.indexOf(node.parentNode); //this is the problem?
+    /*childNodeArray = Array.from(node.parentNode.closest("P").childNodes);
+    nodeIndex = childNodeArray.indexOf(node.parentNode); //this is the problem?*/
+
+    while(node.parentNode.nodeName !== 'P'){
+      node = node.parentNode;
+    }
+    
+    childNodeArray = Array.from(node.parentNode.childNodes);
+    nodeIndex = childNodeArray.indexOf(node);
 
     /*
     IDEA

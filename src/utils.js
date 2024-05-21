@@ -2,7 +2,15 @@ export const addIds = () => {
     const chapter = document
       .querySelector("#workskin")
       .querySelector("#chapters");
-    const userstuff = chapter.querySelector(".userstuff.module");
+
+    let userstuff;
+
+    const module = chapter.querySelector(".module");
+    if (module) {
+      userstuff = chapter.querySelector(".userstuff.module")
+    }else{
+      userstuff = chapter.querySelector(".userstuff");
+    }
   
     userstuff.childNodes.forEach((child, index) => {
       if (child.nodeName !== "#text") {
@@ -206,22 +214,13 @@ function getNodeIndex(node){
     childNodeArray = Array.from(node.parentNode.childNodes);
     nodeIndex = childNodeArray.indexOf(node);
   }else if (node.parentNode.nodeName !== 'P'){
-    /*childNodeArray = Array.from(node.parentNode.closest("P").childNodes);
-    nodeIndex = childNodeArray.indexOf(node.parentNode); //this is the problem?*/
 
     while(node.parentNode.nodeName !== 'P'){
       node = node.parentNode;
     }
     
     childNodeArray = Array.from(node.parentNode.childNodes);
-    nodeIndex = childNodeArray.indexOf(node);
-
-    /*
-    IDEA
-      - if node.parentNode.nodeName !== 'P'
-        - loop through children until node is found
-        - find the index
-    */
+    nodeIndex = childNodeArray.indexOf(node); //Why is this outputting 3?
   }
 
   return nodeIndex;

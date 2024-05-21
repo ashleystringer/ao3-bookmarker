@@ -65,12 +65,18 @@ const displayBookmark = (bookmarkByPage) => {
   // Get the parent node of the selection
   const parentNode = document.querySelector(`.${bookmarkByPage.parentClass}`);
 
+  console.log(parentNode.childNodes);
+
   let anchorNode = parentNode.childNodes[bookmarkByPage.anchorNodeIndex]; //This assumes this is a text node.
   let focusNode = parentNode.childNodes[bookmarkByPage.focusNodeIndex]; //This assumes this is a text node.
 
-  if(anchorNode.nodeType === 1) anchorNode = anchorNode.firstChild;
+  console.log(anchorNode); 
+  if(anchorNode.nodeType === 1) anchorNode = getFirstTextNode(anchorNode); //anchorNode = anchorNode.firstChild;
+  console.log("anchorNode"); 
+  console.log(anchorNode); 
 
-  if(focusNode.nodeType === 1) focusNode = focusNode.firstChild;
+
+  if(focusNode.nodeType === 1) focusNode = getFirstTextNode(focusNode); //focusNode = focusNode.firstChild;
   //if the anchor or focus node is an element node, get the first child of that element node
 
   console.log(anchorNode.nodeType, focusNode.nodeType);
@@ -94,6 +100,16 @@ const displayBookmark = (bookmarkByPage) => {
     range.insertNode(markElement);
   }
 }
+
+const getFirstTextNode = (node) => {
+  if(node.nodeType === Node.TEXT_NODE && node.nodeValue !== '\n') return node; 
+
+  let result = null;
+  for (let i = 0; i < node.childNodes.length && result === null; i++) {
+    result = getFirstTextNode(node.childNodes[i]);
+  }
+  return result;
+};
 
 const handleBookmarkSelection = (e) => {
   // ADD TOOLTIP TO REMOVE BOOKMARK

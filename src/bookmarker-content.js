@@ -1,4 +1,4 @@
-import { addIds, getChapterFromURL, removeMarkElement, calculateSelectionData } from "./utils.js";
+import { addIds, getWorkDataFromURL, removeMarkElement, calculateSelectionData } from "./utils.js";
 import { createTooltip, removeTooltip, findTooltipLocation } from "./tooltip.js";
 
 
@@ -45,7 +45,7 @@ const getBookmarkByChapter = async () => {
   const { bookmarks } = await chrome.storage.local.get("bookmarks");
   console.log(bookmarks);
 
-  const { workNumber, pageChapterNumber } = getChapterFromURL(window.location.href);
+  const { workNumber, pageChapterNumber } = getWorkDataFromURL(window.location.href);
   const bookmarkByPage = bookmarks[workNumber];
 
   console.log(bookmarkByPage);
@@ -63,7 +63,9 @@ const displayBookmark = (bookmarkByPage) => {
   console.log(bookmarkByPage);
 
   // Get the parent node of the selection
-  const parentNode = document.querySelector(`.${bookmarkByPage.parentClass}`);
+  //const parentNode = document.querySelector(`.${bookmarkByPage.parentClass}`);
+  const parentNode = document.querySelector(modifiedParentClass(bookmarkByPage.parentClass));
+
 
   console.log(parentNode.childNodes);
 
@@ -159,7 +161,7 @@ const removeBookmark = (e) => {
   
   // REMOVING THE BOOKMARK FROM LOCAL STORAGE
   chrome.storage.local.get("bookmarks", (result) => {
-    const { workNumber } = getChapterFromURL(window.location.href);
+    const { workNumber } = getWorkDataFromURL(window.location.href);
 
     let bookmarks = result.bookmarks || {};
 
@@ -243,7 +245,7 @@ const applyBookmarkedText = async (selectionObject) => {
       range.insertNode(markElement);
     }
 
-  const { workNumber, urlChapterNumber, pageChapterNumber } = getChapterFromURL(window.location.href);
+  const { workNumber, urlChapterNumber, pageChapterNumber } = getWorkDataFromURL(window.location.href);
 
 
   const authorName = document.querySelector(".byline").querySelector("a").textContent;
@@ -304,7 +306,7 @@ getBookmarkByChapter();
 
 window.addEventListener("load", async () => {
   const { bookmarks } = await chrome.storage.local.get("bookmarks");
-  const { workNumber, urlChapterNumber } = getChapterFromURL(window.location.href);
+  const { workNumber, urlChapterNumber } = getWorkDataFromURL(window.location.href);
   const bookmarkByPage = bookmarks[workNumber];
 
   if(bookmarkByPage === undefined || bookmarkByPage == null) return;
@@ -314,10 +316,24 @@ window.addEventListener("load", async () => {
 
   if(bookmarkByPage.urlChapterNumber !== urlChapterNumber) return; 
 
-  const parentNode = document.querySelector(`.${bookmarkByPage.parentClass}`);
+  //const parentNode = document.querySelector(`.${bookmarkByPage.parentClass}`);
+  const parentNode = document.querySelector(modifiedParentClass(bookmarkByPage.parentClass));
+
+  // Find a way to dynamically place multiple classes in the querySelector above
+
+  console.log(parentNode);
 
   parentNode.scrollIntoView(true);
 });
+
+
+const modifiedParentClass = (parentClassStr) => {
+	const parentClassArray = parentClassStr.split(" ");
+	const newArray = parentClassArray.map(parentClass => `.${parentClass}`);
+
+	return newArray.join("");
+}
+
 
 const chapter = document.querySelector("#workskin").querySelector("#chapters");
 

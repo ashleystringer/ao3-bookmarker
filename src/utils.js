@@ -53,10 +53,10 @@ export const removeIds = () => {
     });
   };
 
-export const getChapterFromURL = (url) => {
-    const regex = /works\/(\d+).*chapters\/(\d+)/;
+export const getWorkDataFromURL = (url) => {
+    let regex = /works\/(\d+).*chapters\/(\d+)/;
   
-    const match = url.match(regex);
+    let match = url.match(regex);
 
     if (match) {
       const workNumber = match[1];
@@ -65,9 +65,14 @@ export const getChapterFromURL = (url) => {
   
       return { workNumber, urlChapterNumber, pageChapterNumber };
     }
-  
-    return null;
+    
+    regex = /works\/(\d+)/;
+    match = url.match(regex);
+    const workNumber = match[1];
+    return { workNumber, urlChapterNumber: 1, pageChapterNumber: 1 };
+    //return null;
 };
+
 
 const getChapterNumber = () => {
     const chapter = document.querySelector("#workskin").querySelector(".chapter").querySelector("a").textContent;

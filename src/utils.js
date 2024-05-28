@@ -2,7 +2,15 @@ export const addIds = () => {
     const chapter = document
       .querySelector("#workskin")
       .querySelector("#chapters");
-    const userstuff = chapter.querySelector(".userstuff.module");
+
+    let userstuff;
+
+    const module = chapter.querySelector(".module");
+    if (module) {
+      userstuff = chapter.querySelector(".userstuff.module")
+    }else{
+      userstuff = chapter.querySelector(".userstuff");
+    }
   
     userstuff.childNodes.forEach((child, index) => {
       if (child.nodeName !== "#text") {
@@ -45,10 +53,10 @@ export const removeIds = () => {
     });
   };
 
-export const getChapterFromURL = (url) => {
-    const regex = /works\/(\d+).*chapters\/(\d+)/;
+export const getWorkDataFromURL = (url) => {
+    let regex = /works\/(\d+).*chapters\/(\d+)/;
   
-    const match = url.match(regex);
+    let match = url.match(regex);
 
     if (match) {
       const workNumber = match[1];
@@ -57,9 +65,14 @@ export const getChapterFromURL = (url) => {
   
       return { workNumber, urlChapterNumber, pageChapterNumber };
     }
-  
-    return null;
+    
+    regex = /works\/(\d+)/;
+    match = url.match(regex);
+    const workNumber = match[1];
+    return { workNumber, urlChapterNumber: 1, pageChapterNumber: 1 };
+    //return null;
 };
+
 
 const getChapterNumber = () => {
     const chapter = document.querySelector("#workskin").querySelector(".chapter").querySelector("a").textContent;
@@ -206,15 +219,13 @@ function getNodeIndex(node){
     childNodeArray = Array.from(node.parentNode.childNodes);
     nodeIndex = childNodeArray.indexOf(node);
   }else if (node.parentNode.nodeName !== 'P'){
-    childNodeArray = Array.from(node.parentNode.closest("P").childNodes);
-    nodeIndex = childNodeArray.indexOf(node.parentNode); //this is the problem?
 
-    /*
-    IDEA
-      - if node.parentNode.nodeName !== 'P'
-        - loop through children until node is found
-        - find the index
-    */
+    while(node.parentNode.nodeName !== 'P'){
+      node = node.parentNode;
+    }
+    
+    childNodeArray = Array.from(node.parentNode.childNodes);
+    nodeIndex = childNodeArray.indexOf(node); //Why is this outputting 3?
   }
 
   return nodeIndex;

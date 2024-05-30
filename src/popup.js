@@ -36,7 +36,6 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 });
 
 const updateBookmarkList = (bookmarks) => {
-  // VIOLATES THE SINGLE RESPONSIBILITY PRINCIPLE?
 
   const ul = document.querySelector("ul");
   ul.innerHTML = ''; // clear the list
@@ -70,23 +69,6 @@ const deleteBookmark =  async (workNumber) => {
   chrome.storage.local.set({ bookmarks });
   updateBookmarkList(bookmarks);
 };
-/*
-const updateBadge = async (bookmarks) => {
-
-  const { bookmarks } = await chrome.storage.local.get("bookmarks");
-
-
-  console.log(`number of bookmarks: ${Object.keys(bookmarks).length}`);
-  chrome.stotage.local.set({bookmarks});
-  if(Object.keys(bookmarks).length > 0){
-    chrome.action.setBadgeText({text: `${Object.keys(bookmarks).length}`});
-  }else{
-    chrome.action.setBadgeText({text: ""});
-  }
-  
-  chrome.storage.local.set({bookmarkCount: Object.keys(bookmarks).length});
-}
-*/
 
 const updateBadge = (bookmarks) => {
   console.log(`number of bookmarks: ${Object.keys(bookmarks).length}`);
@@ -108,13 +90,3 @@ readingTimeCheckbox.addEventListener("change", async (e) => {
     }
   });
 });
-
-// Add the event listener to the bookmark link
-//bookmarkLink.addEventListener('click', onBookmarkLinkClick);
-
-/*
-// Assuming bookmarkLinks is an array of bookmark link elements
-bookmarkLinks.forEach(link => {
-  link.addEventListener('click', onBookmarkLinkClick);
-});
-*/

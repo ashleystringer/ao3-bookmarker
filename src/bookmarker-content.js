@@ -2,8 +2,7 @@ import { addIds, getWorkDataFromURL, removeMarkElement, calculateSelectionData }
 import { createTooltip, removeTooltip, findTooltipLocation } from "./tooltip.js";
 
 
-function handleSelectedTextOption(targetElement, selectedTextElement, tooltipElement) {
-  //**** THIS IS IN PROGRESS ****
+function handleSelectedTextOption(tooltipElement) {
   if (tooltipElement) {
     removeTooltip();
   }else{
@@ -16,8 +15,6 @@ function handleBookmarkedTextOption(targetElement, bookmarkedText, tooltipElemen
     removeTooltip(bookmarkedText);
   } else if (!bookmarkedText.contains(targetElement) && !tooltipElement && !isSelectionCollapsed) {
     handleTextSelection("replace");
-  } else if (bookmarkedText.contains(targetElement) && !isSelectionCollapsed) {
-    console.log("bookmarkedText && bookmarkedText.contains(targetElement) && !isSelectionCollapsed");
   }
 }
 
@@ -57,13 +54,11 @@ const getBookmarkByChapter = async () => {
 }
 
 const displayBookmark = (bookmarkByPage) => {
-  //VIOLATION OF SINGLE RESPONSIBILITY PRINCIPLE?
 
   console.log("displayBookmark");
   console.log(bookmarkByPage);
 
   // Get the parent node of the selection
-  //const parentNode = document.querySelector(`.${bookmarkByPage.parentClass}`);
   const parentNode = document.querySelector(modifiedParentClass(bookmarkByPage.parentClass));
 
 
@@ -104,7 +99,7 @@ const displayBookmark = (bookmarkByPage) => {
 }
 
 const getFirstTextNode = (node) => {
-  if(node.nodeType === Node.TEXT_NODE && node.nodeValue !== '\n') return node; 
+  if(node.nodeType === Node.TEXT_NODE && node.nodeValue !== '\n'  && node.nodeValue !== '&nbsp;') return node; 
 
   let result = null;
   for (let i = 0; i < node.childNodes.length && result === null; i++) {
@@ -316,7 +311,7 @@ window.addEventListener("load", async () => {
 
   if(bookmarkByPage.urlChapterNumber !== urlChapterNumber) return; 
 
-  //const parentNode = document.querySelector(`.${bookmarkByPage.parentClass}`);
+  
   const parentNode = document.querySelector(modifiedParentClass(bookmarkByPage.parentClass));
 
   // Find a way to dynamically place multiple classes in the querySelector above
@@ -338,7 +333,6 @@ const modifiedParentClass = (parentClassStr) => {
 const chapter = document.querySelector("#workskin").querySelector("#chapters");
 
 chapter.addEventListener("mouseup", e => {
-  //VIOLATION OF OPEN-CLOSED PRINCIPLE?
 
   const selectedTextElement = document.querySelector(".selectedText"); // 1.
   const bookmarkedText = document.querySelector(".bookmarkedText");
@@ -349,11 +343,11 @@ chapter.addEventListener("mouseup", e => {
   console.log(document.getSelection());
 
   if(!isSelectionCollapsed && !bookmarkedText){
-    handleSelectedTextOption(e.target, selectedTextElement, tooltipElement);
+    handleSelectedTextOption(tooltipElement);
+    //handleSelectedTextOption(e.target, selectedTextElement, tooltipElement);
   } else if(!isSelectionCollapsed && bookmarkedText){
     handleBookmarkedTextOption(e.target, bookmarkedText, tooltipElement, isSelectionCollapsed);
   }else{
-    console.log("else");
     if(tooltipElement){
       removeTooltip();
     }

@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "AO3 Bookmarker",
-    "description": ".",
+    "description": "A tool to bookmark your AO3 pics down to the exact sentence!",
     "version": "1.0.0",
     "action": {
       "default_popup": "popup.html"
@@ -22,13 +22,10 @@
         "css": ["bookmarker.css"]
       }
     ],
-    "commands": {
-      "toggle-popup": {
-          "suggested_key": {
-            "default": "Ctrl+B",
-            "mac": "Command+B"
-          },
-          "description": "Toggle Popup"
-        }
-      }
+    "icons": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
     }
+  }

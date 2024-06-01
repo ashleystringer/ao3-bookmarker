@@ -1,6 +1,3 @@
-/*
-- Add new styling to the popup to make it look more like a popup.
-*/
 
 console.log("popup.js");
 const readingTimeCheckbox = document.querySelector(".reading-time-checkbox");
@@ -25,7 +22,6 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   if(changes.bookmarks && areaName === "local"){
     console.log(changes.bookmarks.newValue);
     updateBookmarkList(changes.bookmarks.newValue);
-    //updateBadge(changes.bookmarks.newValue);
   }
   for(let [key, {oldValue, newValue}] of Object.entries(changes)){
     console.log(`key: ${key}, oldValue: ${oldValue}, newValue: ${newValue}`);

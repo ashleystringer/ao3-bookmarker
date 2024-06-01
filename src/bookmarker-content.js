@@ -129,11 +129,11 @@ const createPositionedTooltip = (elementRect, tooltipType, selectionObject) => {
   let tooltip; 
 
  if (tooltipType === "add"){
-   tooltip = createTooltip("+", () => addBookmark(selectionObject));
+   tooltip = createTooltip("add", () => addBookmark(selectionObject));
  }else if (tooltipType === "replace"){
-   tooltip = createTooltip("?", () => replaceBookmark(selectionObject));
+   tooltip = createTooltip("replace", () => replaceBookmark(selectionObject));
  }else if (tooltipType === "delete"){
-   tooltip = createTooltip("-", removeBookmark);
+   tooltip = createTooltip("delete", removeBookmark);
  }
 
  findTooltipLocation(elementRect, tooltip);

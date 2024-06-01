@@ -3,7 +3,7 @@ export const createTooltip = (buttonMsg, callback) => {
   // CREATES TOOLTIP DIV
   const tooltip = document.createElement("div");
   tooltip.classList.add("tooltip", "default", "faded-out");
-  //
+  
 
   requestAnimationFrame(() => {
     tooltip.classList.remove("faded-out");
@@ -14,7 +14,7 @@ export const createTooltip = (buttonMsg, callback) => {
   btnDiv.classList.add("btn");
 
   btnDiv.innerText = buttonMsg;
-  //
+  
 
   // ADDS EVENT LISTENER TO BUTTON DIV
   if(!btnDiv.hasClickListener){
@@ -25,7 +25,7 @@ export const createTooltip = (buttonMsg, callback) => {
     });
     btnDiv.hasClickListener = true;
   }
-  //
+  
 
   tooltip.appendChild(btnDiv);
 
@@ -33,7 +33,6 @@ export const createTooltip = (buttonMsg, callback) => {
 }
 
 export const removeTooltip = (parentElement) => {
-  //**** THIS IS IN PROGRESS ****
 
   const tooltip = document.body.querySelector(".tooltip");
   if(tooltip == null) return;
@@ -42,14 +41,13 @@ export const removeTooltip = (parentElement) => {
 
 export const findTooltipLocation = (elementRect, tooltip) => {
 
-    //**** THIS IS IN PROGRESS ****
   if (isTooltipUnderViewport(elementRect)){
     tooltip.style.top = elementRect.bottom + window.scrollY + "px";
     tooltip.style.left = (elementRect.left + elementRect.right) / 2 + "px";
     tooltip.classList.remove("default");
     tooltip.classList.add("tooltip", "dropdown");
   }else{
-    tooltip.style.top = elementRect.top + window.scrollY - 80 + "px";
+    tooltip.style.top = elementRect.top + window.scrollY - 70 + "px";
     tooltip.style.left = (elementRect.left + elementRect.right) / 2 + "px";
     tooltip.classList.add("tooltip", "default");
   }

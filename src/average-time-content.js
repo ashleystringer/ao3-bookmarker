@@ -27,7 +27,7 @@ export const averageReadingTime = async () => {
       badge.classList.add("readingTimeBadge");
       badge.style.color = "#808080";
       badge.style.fontStyle = "italic";
-      badge.innerText = `⏱️${readingTimeMin} - ${readingTimeMax} min read`;
+      badge.innerText = `⏱️${readingTimeMin} - ${readingTimeMax} min. read`;
 
       const bylineHeading = workskin.querySelector(".byline");
 

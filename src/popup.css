@@ -55,9 +55,14 @@ li:nth-child(even) {
     color: #666;
 }
 
-.delete-work {
+button.delete-work {
     font-weight: bold;
     cursor: pointer;
     border: none;
+    background-color: transparent;
     color: #7e0101;
+}
+
+button.delete-work:hover {
+    background-color: #858585;
 }

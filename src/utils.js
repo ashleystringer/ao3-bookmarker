@@ -70,7 +70,6 @@ export const getWorkDataFromURL = (url) => {
     match = url.match(regex);
     const workNumber = match[1];
     return { workNumber, urlChapterNumber: 1, pageChapterNumber: 1 };
-    //return null;
 };
 
 
@@ -190,12 +189,7 @@ export async function calculateSelectionData(selection) {
 
     recalculatedAnchorOffset = lastChildOffset + selectionAnchorOffset;
     recalculatedFocusOffset = lastChildOffset + selectionFocusOffset;
-    //BUG - This is assuming the focusNodeIndex of the selection object is what it would be without the mark element existing.
   }
-
-  /*
-  - REMEMBER - The node indices for after the element the bookmarkedText is within are incorrect.
-  */
 
   // Return the recalculated selection data
   return {
@@ -207,10 +201,6 @@ export async function calculateSelectionData(selection) {
 }
 
 function getNodeIndex(node){
-
-  /*
-  // A bug is here in the case of element nodes containing span tags
-  */
 
   let childNodeArray;
   let nodeIndex;
@@ -225,7 +215,7 @@ function getNodeIndex(node){
     }
     
     childNodeArray = Array.from(node.parentNode.childNodes);
-    nodeIndex = childNodeArray.indexOf(node); //Why is this outputting 3?
+    nodeIndex = childNodeArray.indexOf(node); 
   }
 
   return nodeIndex;

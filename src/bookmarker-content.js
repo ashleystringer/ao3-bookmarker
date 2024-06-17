@@ -300,25 +300,21 @@ addIds();
 getBookmarkByChapter();
 
 window.addEventListener("load", async () => {
+  
   const { bookmarks } = await chrome.storage.local.get("bookmarks");
   const { workNumber, urlChapterNumber } = getWorkDataFromURL(window.location.href);
   const bookmarkByPage = bookmarks[workNumber];
 
   if(bookmarkByPage === undefined || bookmarkByPage == null) return;
 
-  console.log("bookmarkByPage");
-  console.log(bookmarkByPage);
-
   if(bookmarkByPage.urlChapterNumber !== urlChapterNumber) return; 
 
-  
-  const parentNode = document.querySelector(modifiedParentClass(bookmarkByPage.parentClass));
+    
+  const bookmarkedTextNode = document.querySelector(".bookmarkedText");
 
-  // Find a way to dynamically place multiple classes in the querySelector above
+  if (bookmarkedTextNode === null) return;
 
-  console.log(parentNode);
-
-  parentNode.scrollIntoView(true);
+  bookmarkedTextNode.scrollIntoView(true);
 });
 
 

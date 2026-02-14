@@ -4,13 +4,7 @@ export const addIds = () => {
       .querySelector("#chapters");
 
     let userstuff;
-
-    const module = chapter.querySelector(".module");
-    if (module) {
-      userstuff = chapter.querySelector(".userstuff.module")
-    }else{
-      userstuff = chapter.querySelector(".userstuff");
-    }
+    userstuff = module ? chapter.querySelector(".userstuff.module") : chapter.querySelector(".userstuff");
   
     userstuff.childNodes.forEach((child, index) => {
       if (child.nodeName !== "#text") {

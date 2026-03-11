@@ -1,5 +1,4 @@
-
-  class TextSelector {
+export class TextSelector {
     constructor(tooltip){
         this.tooltip = tooltip; 
         }
@@ -21,10 +20,9 @@
             const anchorNode = selectionObject.anchorNode;
             const focusNode = selectionObject.focusNode;
     
-    
-            const anchorParagraph = anchorNode.parentNode.nodeName === 'P' ? anchorNode.parentNode : anchorNode.parentNode.closest('P');
-            const focusParagraph = focusNode.parentNode.nodeName === 'P' ? focusNode.parentNode : focusNode.parentNode.closest('P');
-    
+            const anchorParagraph = this.getParentParagraph(anchorNode);
+            const focusParagraph = this.getParentParagraph(focusNode);
+
             if (anchorParagraph !== focusParagraph) return;
     
             this.tooltip.createPositionedTooltip(selectionObjectRect, tooltipType, selectionObject);
@@ -75,6 +73,10 @@
       
             return newArray.join("");
           }
+        getParentParagraph(node){
+          //const anchorParagraph = anchorNode.parentNode.nodeName === 'P' ? anchorNode.parentNode : anchorNode.parentNode.closest('P');
+          return node.parentNode.nodeName === 'P' ? node.parentNode : node.parentNode.closest('P');
+        }
   }
     //handleSelectedTextOption - needs tooltip - PASTED
     //???? handleBookmarkedTextOption - needs tooltip

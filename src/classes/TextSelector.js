@@ -1,22 +1,22 @@
-export class TextSelector {
+export default class TextSelector {
     constructor(tooltip){
         this.tooltip = tooltip; 
-        }
-      
+      }
       handleSelectedTextOption(tooltipElement) {
           // !!!! TOOLTIP !!!! 
           // !!!! TEXT SELECTION !!!!
   
-          tooltipElement ? removeTooltip() : handleTextSelection("add");
+          tooltipElement ? removeTooltip() : this.handleTextSelection("add");
+
+          //Probably get rid of this method in conjunction with modifying handleTextSelection
         }  
-    async handleTextSelection (tooltipType) {
+      handleTextSelection () {
             // !!!! TEXT SELECTION !!!!
             // !!!! TOOLTIP !!!!
     
             const selectionObject = document.getSelection();
             const selectionObjectRect = document.getSelection().getRangeAt(0).getBoundingClientRect();
-    
-    
+        
             const anchorNode = selectionObject.anchorNode;
             const focusNode = selectionObject.focusNode;
     
@@ -25,10 +25,23 @@ export class TextSelector {
 
             if (anchorParagraph !== focusParagraph) return;
     
-            this.tooltip.createPositionedTooltip(selectionObjectRect, tooltipType, selectionObject);
-    
-            document.body.appendChild(tooltip); 
-    } 
+            /*this.tooltip.createPositionedTooltip(selectionObjectRect, tooltipType, selectionObject);
+            console.log(typeof this.tooltip);
+            document.body.appendChild(this.tooltip); */
+
+            const selectionData = {
+              anchorNode: selectionObject.anchorNode,
+              focusNode: selectionObject.focusNode,
+              anchorOffset: selectionObject.anchorOffset,              
+              focusOffset: selectionObject.focusOffset,     
+              range: document.getSelection().getRangeAt(0).cloneRange(),          
+              selectionObjectRect
+            }
+
+            //Idea 
+            return { selectionData };
+            //handle the stuff with tooltip outside of this function
+        } 
         getFirstTextNode(node){ //- Save for utils.js?
             // !!!! TEXT SELECTION !!!!
     

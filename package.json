@@ -4,7 +4,15 @@
   "main": "average-time-content.js",
   "scripts": {
     "build": "webpack --config webpack.config.js",
-    "test": "jest"
+    "test": "jest ."
+  },
+  "transform": {
+    "\\.[jt]sx?$": [
+      "babel-jest",
+      {
+        "excludeJestPreset": true
+      }
+    ]
   },
   "repository": {
     "type": "git",
@@ -17,6 +25,7 @@
     "@babel/core": "^7.23.5",
     "@babel/preset-env": "^7.23.5",
     "@babel/preset-react": "^7.23.3",
+    "babel-jest": "^30.3.0",
     "babel-loader": "^9.1.3",
     "copy-webpack-plugin": "^11.0.0",
     "html-webpack-plugin": "^5.5.4",

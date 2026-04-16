@@ -1,20 +1,22 @@
-import { getWorkDataFromURL } from "./utils.js";
+import { getWorkDataFromURL } from "../utils.js";
 
-export class StorageManager{
+export default class StorageManager{
     async get(){
         const { bookmarks } = await chrome.storage.local.get("bookmarks");
-        return bookmarks;
+        return { bookmarks };
     }
     async getBookmark(){
-        
         const { bookmarks } = await this.get();
         const { workNumber, pageChapterNumber } = getWorkDataFromURL(window.location.href);
         const bookmarkByPage = bookmarks[workNumber];
+        //const bookmarkByPage = bookmarks ? bookmarks[workNumber] : 
         return { bookmarkByPage, pageChapterNumber };
     }
     set(workNumber, bookmarkByPage){    
         chrome.storage.local.get("bookmarks", (result) => {
             let bookmarks = result.bookmarks || {};
+
+            console.log(`typeof workNumber: ${typeof workNumber}`);
 
             bookmarks[workNumber] = bookmarkByPage;
         

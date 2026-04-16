@@ -1,6 +1,7 @@
+import { getNodeIndex, getWorkDataFromURL, removeMarkElement, createPositionedTooltip } from '../utils.js'
 import StorageManager  from "./StorageManager";
 
-export class BookmarkManager {
+export default class BookmarkManager {
     constructor(tooltip, textSelector){
         this.tooltip = tooltip;
         this.textSelector = textSelector;
@@ -8,9 +9,13 @@ export class BookmarkManager {
       }
     handleBookmarkedTextOption(targetElement, bookmarkedText, tooltipElement, isSelectionCollapsed) {
         // !!!! TEXT SELECTION !!!!
+
+        console.log("handleBookmarkedTextOption");
+
         if (!bookmarkedText.contains(targetElement) && tooltipElement && !tooltipElement.contains(targetElement)) {
           this.tooltip.removeTooltip(bookmarkedText);
         } else if (!bookmarkedText.contains(targetElement) && !tooltipElement && !isSelectionCollapsed) {
+          console.log("else if");
           this.textSelector.handleTextSelection("replace");
           }
         }
@@ -23,35 +28,24 @@ export class BookmarkManager {
         console.log(`bookmarkByPage.pageChapterNumber: ${bookmarkByPage.pageChapterNumber}`);
           
         if(bookmarkByPage && bookmarkByPage?.pageChapterNumber === pageChapterNumber){  
-          displayBookmark(bookmarkByPage);
+          this.displayBookmark(bookmarkByPage);
           }
       }
     displayBookmark(bookmarkByPage){
       // !!!! BOOKMARK !!!!
       // !!!! TEXT SELECTION !!!!
               
-      console.log("displayBookmark");
-      console.log(bookmarkByPage);
-              
       // Get the parent node of the selection
       const parentNode = document.querySelector(this.textSelector.modifiedParentClass(bookmarkByPage.parentClass));              
-              
-      console.log(parentNode.childNodes);
-              
+                            
       let anchorNode = parentNode.childNodes[bookmarkByPage.anchorNodeIndex]; //This assumes this is a text node.
       let focusNode = parentNode.childNodes[bookmarkByPage.focusNodeIndex]; //This assumes this is a text node.
               
-      console.log(anchorNode); 
       if(anchorNode.nodeType === 1) anchorNode = this.textSelector.getFirstTextNode(anchorNode); //anchorNode = anchorNode.firstChild;
-      console.log("anchorNode"); 
-      console.log(anchorNode); 
-              
               
       if(focusNode.nodeType === 1) focusNode = this.textSelector.getFirstTextNode(focusNode); //focusNode = focusNode.firstChild;
       //if the anchor or focus node is an element node, get the first child of that element node
-              
-      console.log(anchorNode.nodeType, focusNode.nodeType);
-              
+                            
       const anchorOffset = bookmarkByPage.anchorOffset;
       const focusOffset = bookmarkByPage.focusOffset;
               
@@ -61,24 +55,29 @@ export class BookmarkManager {
               
       if(!range.collapsed){
         console.log("range not collapsed");
-        createBookmarkElement(range, handleBookmarkSelection);
+        this.createBookmarkElement(range, (e) => this.handleBookmarkSelection(e));
         }
       }
+      
     handleBookmarkSelection(e){
+
+      //STOPPING RIGHT HERE
+
       // !!!! TEXT SELECTION !!!!
       // !!!! TOOLTIP !!!!
-              
-      // ADD TOOLTIP TO REMOVE BOOKMARK
-              
+                  
       const tooltipElement = document.querySelector(".tooltip");
+
+      console.log('handleBookmarkSelection method in BookmarkManager');
               
       if(tooltipElement == null){
               
         const bookmarkedElement = e.target.closest(".bookmarkedText");
         const bookmarkedElementRect = bookmarkedElement.getBoundingClientRect();
               
-        const newTooltipElement = createPositionedTooltip(bookmarkedElementRect, "delete");
-        //this.tooltip.createPositionedTooltop(bookmarkedElementRect, "delete");
+        //const newTooltipElement = createPositionedTooltip(bookmarkedElementRect, "delete"); // !!!! FIX THIS NEXT TIME !!!!
+
+        const newTooltipElement = createPositionedTooltip({ selectionObjectRect: bookmarkedElementRect }, this.tooltip, "delete", () => this.removeBookmark());
 
         document.body.appendChild(newTooltipElement); 
         }
@@ -92,6 +91,8 @@ export class BookmarkManager {
       // !!!! BOOKMARK !!!!
       // !!!! TOOLTIP !!!!
       // !!!! STORAGE !!!!
+
+      console.log("removeBookmark");
               
       const bookmarkedElement = document.querySelector(".bookmarkedText");
       removeMarkElement(bookmarkedElement);
@@ -110,9 +111,7 @@ export class BookmarkManager {
     // !!!! TOOLTIP !!!!
     // !!!! STORAGE !!!!
               
-    console.log("addBookmark");
-              
-    let bookmarkByPage = await applyBookmarkedText(selectionObject);
+    let bookmarkByPage = await this.applyBookmarkedText(selectionObject);
     const workNumber = bookmarkByPage.workNumber;
               
     const bookmarkedText = document.querySelector(".bookmarkedText");
@@ -121,34 +120,30 @@ export class BookmarkManager {
               
     bookmarkByPage.parentClass = parentClass;
               
-    this.tooltip.removeTooltip();
-                
+    this.tooltip.removeTooltip();           
               
     // GETTING THE WORK NUMBER AND CHAPTER NUMBER FROM THE URL TO PUT INTO LOCAL STORAGE
               
     this.storageManager.set(workNumber, bookmarkByPage);
-    /*
-    const { workNumber } = getWorkDataFromURL(window.location.href);
-    */
     }
+
     async applyBookmarkedText(selectionObject){
 
       // !!!! TEXT SELECTION !!!!
       // !!!! BOOKMARK !!!!
-              
       const { 
         anchorOffset,
         anchorNodeIndex,
         focusOffset,
         focusNodeIndex
-        } = await calculateSelectionData(selectionObject);
+        } = await this.calculateSelectionData(selectionObject);
               
         console.log(`anchorOffset: ${anchorOffset}, anchorNodeIndex: ${anchorNodeIndex}, focusOffset: ${focusOffset}, focusNodeIndex: ${focusNodeIndex}`);
               
         const anchorNode = selectionObject.anchorNode;
         const focusNode = selectionObject.focusNode;
-              
-        const commonAncestorNode = selectionObject.getRangeAt(0).commonAncestorContainer;
+                
+        const commonAncestorNode = selectionObject.range.commonAncestorContainer;
         if(commonAncestorNode.nodeName === "P" || commonAncestorNode.contains(anchorNode) && commonAncestorNode.contains(focusNode)){
               
           //if anchorNode and focusNode are nodes other than text nodes
@@ -171,16 +166,13 @@ export class BookmarkManager {
           if(!range.collapsed){
             console.log("range not collapsed");
 
-            createBookmarkElement(range, handleBookmarkSelection);
+            this.createBookmarkElement(range, (e) => this.handleBookmarkSelection(e)); //this.createBookmarkElement(range, this.handleBookmarkSelection);
             }
               
             const { workNumber, urlChapterNumber, pageChapterNumber } = getWorkDataFromURL(window.location.href);
               
             const authorName = document.querySelector(".byline").querySelector("a").textContent;
-            const workTitle = document.querySelector(".title").textContent;
-              
-            console.log("commonAncestorNode.nodeName");
-            console.log(commonAncestorNode.nodeName);
+            const workTitle = document.querySelector(".title").textContent;  
               
             const selectedTextByPage = {
               authorName,
@@ -199,18 +191,22 @@ export class BookmarkManager {
               
             return selectedTextByPage;
             }
-          }
-          async calculateSelectionData(selection) {
+    }
+    async calculateSelectionData(selection) {
+
+          // FIGURE THIS OUT
+
             const bookmarkedText = document.querySelector(".bookmarkedText");
               
             let anchorNodeIndex = getNodeIndex(selection.anchorNode); //Subject to deletion
             let focusNodeIndex = getNodeIndex(selection.focusNode); //Subject to deletion
                 
-            const shouldNotRecalculate = (bookmarkedText) 
+            const shouldRecalculate = (bookmarkedText !== null) 
               && (bookmarkedText.closest("P") === selection.anchorNode.parentNode.closest('P'))
               && !(selection.focusNode.compareDocumentPosition(bookmarkedText) & Node.DOCUMENT_POSITION_FOLLOWING);
 
-            if (shouldNotRecalculate){
+
+            if (!shouldRecalculate){
               return {
                 anchorNodeIndex: anchorNodeIndex, //getNodeIndex(selection.anchorNode)
                 anchorOffset: selection.anchorOffset,
@@ -219,23 +215,25 @@ export class BookmarkManager {
                 };
               }
                 
-              handleIndicesAfterBookmark(); //return object
-            }
+            await this.handleIndicesAfterBookmark(); //return object
+    }
 
-              async handleIndicesAfterBookmark(){ //handleIndicesPostBookmark
-  
+    async handleIndicesAfterBookmark(){ //handleIndicesPostBookmark
+
+                console.log("handleIndicesAfterBookmark");
+
                 const bookmarkedText = document.querySelector(".bookmarkedText"); //NEED TO REVISE THIS
 
                 const { bookmarkByPage } = await this.storageManager.getBookmark();
                           
               if (selection.anchorNode.previousSibling !== bookmarkedText){
-                calculateNonAdjacentNode(bookmarkByPage); //return object
+                this.calculateNonAdjacentNode(bookmarkByPage); //return object
               }
 
-              calculateAdjacentNode(bookmarkByPage); //return object
-            }
+              this.calculateAdjacentNode(bookmarkByPage); //return object
+    }
 
-            calculateNonAdjacentNode(bookmarkByPage){
+    calculateNonAdjacentNode(bookmarkByPage){
 
               const bookmarkedText = document.querySelector(".bookmarkedText"); //NEED TO REVISE THIS
 
@@ -266,9 +264,9 @@ export class BookmarkManager {
                   focusOffset: selection.focusOffset
                 };
             }
-          }
+    }
 
-          calculateAdjacentNode(bookmarkByPage){
+    calculateAdjacentNode(bookmarkByPage){
 
             const bookmarkedText = document.querySelector(".bookmarkedText"); //NEED TO REVISE THIS
             const selectionAnchorOffset = selection.anchorOffset;
@@ -300,10 +298,9 @@ export class BookmarkManager {
                 anchorOffset: recalculatedAnchorOffset,
                 focusOffset: recalculatedFocusOffset
               };
-            }
+    }
 
-        createBookmarkElement(range, callback){
-            
+    createBookmarkElement(range, callback){
             const markElement = document.createElement("mark");
             markElement.className = "bookmarkedText";
                 
@@ -311,18 +308,5 @@ export class BookmarkManager {
             markElement.addEventListener("click", e => {callback(e)})
               
             range.insertNode(markElement);
-        }
-
-        createFromSelection(){
-          //this.modifiedRange();
-        }
+    }
 }
-
-/*
-Initial idea for point of truth
-
-const tooltip = new Tooltip();
-const textSelector = new TextSelector(tooltip);
-const bookmarkManager = new BookmarkManager(tooltip, textSelector);
-
-*/

@@ -1,13 +1,13 @@
-import { addIds, getWorkDataFromURL, removeMarkElement, calculateSelectionData } from "./utils.js";
-import { createTooltip, removeTooltip, findTooltipLocation } from "./tooltip.js";
+import { addIds, createPositionedTooltip } from "./utils.js";
+//import { createTooltip, removeTooltip, findTooltipLocation } from "./tooltip.js";
+import  Tooltip  from "./classes/Tooltip.js";
+import TextSelector  from './classes/TextSelector.js';
+import BookmarkManager from './classes/BookmarkManager.js';
+import StorageManager  from './classes/StorageManager.js';
 
-import Tooltip from "classes/Tooltip.js";
-import TextSelector from 'classes/TextSelector.js';
-import BookmarkManager from 'classes/BookmarkManager.js';
-import StorageManager from 'classes/StorageManager.js';
 
 
-const tooltip = Tooltip();
+const tooltip = new Tooltip();
 const textSelector = new TextSelector(tooltip);
 const bookmarkManager = new BookmarkManager(tooltip, textSelector);
 const storageManager = new StorageManager();
@@ -18,10 +18,13 @@ bookmarkManager.getBookmarkByChapter();
 
 window.addEventListener("load", async () => {
 
+  console.log("Load event");
+
   // !!!! EVENT !!!!
   // !!!! BOOKMARK !!!!
   // !!!! STORAGE !!!!
   const { bookmarkByPage, pageChapterNumber } = await storageManager.get();
+  //The above code is returning an error because there are no bookmarks.
 
   if(bookmarkByPage === undefined || bookmarkByPage == null) return;
 
@@ -48,6 +51,8 @@ chapter.addEventListener("mouseup", e => {
   // !!!! BOOKMARK !!!!
   // !!!! TOOLTIP !!!!
 
+  console.log("mouse up event");
+
   const bookmarkedText = document.querySelector(".bookmarkedText");
   const tooltipElement = document.querySelector(".tooltip");
 
@@ -56,10 +61,28 @@ chapter.addEventListener("mouseup", e => {
   console.log(document.getSelection());
 
   if(!isSelectionCollapsed && !bookmarkedText){
-    textSelector.handleSelectedTextOption(tooltipElement);
+    //textSelector.handleSelectedTextOption(tooltipElement);
+    //tooltipElement ? this.tooltip.removeTooltip() : this.handleTextSelection("add");
+    //const { selectionObjectRect,  selectionObject } = textSelector.handleTextSelection();
+    //document.body.appendChild(createPositionedTooltip({ selectionObjectRect,  selectionObject }, tooltip, 'add'));
+
+    test(textSelector, tooltip, bookmarkManager);
   } else if(!isSelectionCollapsed && bookmarkedText){
+    console.log("after !isSelectionCollapsed && bookmarkedText");
     bookmarkManager.handleBookmarkedTextOption(e.target, bookmarkedText, tooltipElement, isSelectionCollapsed);
   }else{
-    if(tooltipElement) this.tooltip.removeTooltip();
+    console.log("else statement in mouseup event");
+    if(tooltipElement) tooltip.removeTooltip();
   }
 });
+
+function test(textSelector, tooltip, bookmarkManager){
+  const tooltipElement = document.querySelector(".tooltip"); //FIX THIS
+  if (tooltipElement){ 
+    tooltip.removeTooltip(); 
+    return;
+  }
+  const { selectionData } = textSelector.handleTextSelection();
+  
+  document.body.appendChild(createPositionedTooltip(selectionData, tooltip, 'add', (data) => bookmarkManager.addBookmark(data)));
+}

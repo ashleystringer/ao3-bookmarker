@@ -4,8 +4,8 @@ export const addIds = () => {
       .querySelector("#chapters");
 
     let userstuff;
-    userstuff = module ? chapter.querySelector(".userstuff.module") : chapter.querySelector(".userstuff");
-  
+    userstuff = (chapter.querySelector('.module')) ? chapter.querySelector(".userstuff.module") : chapter.querySelector(".userstuff");
+
     userstuff.childNodes.forEach((child, index) => {
       if (child.nodeName !== "#text") {
         child.classList.add(`${child.nodeName}-${index}`);
@@ -69,7 +69,7 @@ export const getWorkDataFromURL = (url) => {
 
 
 const getChapterNumber = () => {
-    const chapter = document.querySelector("#workskin").querySelector(".chapter").querySelector("a").textContent;
+    const chapter = document.querySelector("#workskin").querySelector(".chapter").querySelector(".title").querySelector('a').textContent; 
     const regexChapter = /Chapter (\d+)/;
     return chapter.match(regexChapter)[1];
 };
@@ -88,6 +88,52 @@ export const removeMarkElement = (element) => {
   parentNode.removeChild(element);
   parentNode.normalize();
 }
+
+
+export function createPositionedTooltip(selectionData, tooltipTest, tooltipType, callback){ 
+  const { selectionObjectRect } = selectionData;  
+
+  const tooltipIcon = icons.filter(el => el.type === tooltipType);
+
+  let tooltip; 
+
+  tooltip = tooltipTest?.createTooltip(tooltipIcon[0].icon, () => callback(selectionData));
+
+  tooltipTest?.findTooltipLocation(selectionObjectRect, tooltip);
+
+  return tooltip;
+}
+
+export const icons = [
+  {
+    type: "add",
+    icon: "+"
+  },
+  {
+    type: "delete",
+    icon: "-"
+  },
+  {
+    type: "replace",
+    icon: "?"
+  }
+];
+
+/*export function createPositionedTooltip(elementRect, tooltipType, selectionObject){
+  let tooltip; 
+
+  if (tooltipType === "add"){
+    tooltip = this.createTooltip("+", () => addBookmark(selectionObject));
+  }else if (tooltipType === "replace"){
+    tooltip = this.createTooltip("?", () => replaceBookmark(selectionObject));
+  }else if (tooltipType === "delete"){
+    tooltip = this.createTooltip("-", removeBookmark);
+  }
+
+  this.findTooltipLocation(elementRect, tooltip);
+
+  return tooltip;
+}*/
 
 export async function calculateSelectionData(selection) {
   const bookmarkedText = document.querySelector(".bookmarkedText");
@@ -200,7 +246,7 @@ export async function calculateSelectionData(selection) {
   };
 }
 
-function getNodeIndex(node){
+export function getNodeIndex(node){
 
   /*
   // A bug is here in the case of element nodes containing span tags

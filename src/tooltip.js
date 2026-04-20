@@ -98,7 +98,7 @@ class Tooltip {
     return tooltip;
   }
   
-  removeTooltip(parentElement){ //COPIED
+  removeTooltip(){ //COPIED
     //**** THIS IS IN PROGRESS ****
   
     const tooltip = document.body.querySelector(".tooltip");

@@ -48,6 +48,7 @@ export const removeIds = () => {
   };
 
 export const getWorkDataFromURL = (url) => {
+  console.log("getWorkDataFromURL");
     let regex = /works\/(\d+).*chapters\/(\d+)/;
   
     let match = url.match(regex);
@@ -87,6 +88,7 @@ export const removeMarkElement = (element) => {
   }
   parentNode.removeChild(element);
   parentNode.normalize();
+  console.log("after parentNode.normalize() in removeMarkElement");
 }
 
 
@@ -95,9 +97,12 @@ export function createPositionedTooltip(selectionData, tooltipTest, tooltipType,
 
   const tooltipIcon = icons.filter(el => el.type === tooltipType);
 
+  console.log("tooltipType");
+  console.log(tooltipType);
+
   let tooltip; 
 
-  tooltip = tooltipTest?.createTooltip(tooltipIcon[0].icon, () => callback(selectionData));
+  tooltip = tooltipTest?.createTooltip(tooltipIcon[0]?.icon, () => callback(selectionData));
 
   tooltipTest?.findTooltipLocation(selectionObjectRect, tooltip);
 
@@ -118,6 +123,20 @@ export const icons = [
     icon: "?"
   }
 ];
+
+export function test(textSelector, tooltip, tooltipType, callback){
+  const tooltipElement = document.querySelector(".tooltip"); //FIX THIS
+  if (tooltipElement){ 
+    tooltip.removeTooltip(); 
+    return;
+  }
+  const { selectionData } = textSelector.handleTextSelection();
+  
+  console.log("selectionData in test function");
+  console.log(selectionData);
+  
+  document.body.appendChild(createPositionedTooltip(selectionData, tooltip, tooltipType, (data) => callback(data)));
+}
 
 /*export function createPositionedTooltip(elementRect, tooltipType, selectionObject){
   let tooltip; 
@@ -251,21 +270,20 @@ export function getNodeIndex(node){
   /*
   // A bug is here in the case of element nodes containing span tags
   */
-
   let childNodeArray;
   let nodeIndex;
 
-  if (node.parentNode.nodeName === 'P'){
+  if (node.parentNode?.nodeName === 'P'){
     childNodeArray = Array.from(node.parentNode.childNodes);
     nodeIndex = childNodeArray.indexOf(node);
-  }else if (node.parentNode.nodeName !== 'P'){
+  }else if (node.parentNode?.nodeName !== 'P'){
 
-    while(node.parentNode.nodeName !== 'P'){
+    while(node.parentNode?.nodeName !== 'P'){
       node = node.parentNode;
     }
     
     childNodeArray = Array.from(node.parentNode.childNodes);
-    nodeIndex = childNodeArray.indexOf(node); //Why is this outputting 3?
+    nodeIndex = childNodeArray.indexOf(node);
   }
 
   return nodeIndex;

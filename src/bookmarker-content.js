@@ -1,6 +1,6 @@
 import { addIds, createPositionedTooltip } from "./utils.js";
 //import { createTooltip, removeTooltip, findTooltipLocation } from "./tooltip.js";
-import  Tooltip  from "./classes/Tooltip.js";
+import Tooltip  from "./classes/Tooltip.js";
 import TextSelector  from './classes/TextSelector.js';
 import BookmarkManager from './classes/BookmarkManager.js';
 import StorageManager  from './classes/StorageManager.js';
@@ -66,7 +66,9 @@ chapter.addEventListener("mouseup", e => {
     //const { selectionObjectRect,  selectionObject } = textSelector.handleTextSelection();
     //document.body.appendChild(createPositionedTooltip({ selectionObjectRect,  selectionObject }, tooltip, 'add'));
 
-    test(textSelector, tooltip, bookmarkManager);
+    //test(textSelector, tooltip, bookmarkManager);
+    //test(textSelector, tooltip,  (data) => bookmarkManager.addBookmark(data));
+    test(textSelector, tooltip, 'add', (data) => bookmarkManager.addBookmark(data));
   } else if(!isSelectionCollapsed && bookmarkedText){
     console.log("after !isSelectionCollapsed && bookmarkedText");
     bookmarkManager.handleBookmarkedTextOption(e.target, bookmarkedText, tooltipElement, isSelectionCollapsed);
@@ -76,7 +78,7 @@ chapter.addEventListener("mouseup", e => {
   }
 });
 
-function test(textSelector, tooltip, bookmarkManager){
+/*function test(textSelector, tooltip, bookmarkManager){
   const tooltipElement = document.querySelector(".tooltip"); //FIX THIS
   if (tooltipElement){ 
     tooltip.removeTooltip(); 
@@ -84,5 +86,18 @@ function test(textSelector, tooltip, bookmarkManager){
   }
   const { selectionData } = textSelector.handleTextSelection();
   
+  //document.body.appendChild(createPositionedTooltip(selectionData, tooltip, 'add', (data) => bookmarkManager.addBookmark(data)));
   document.body.appendChild(createPositionedTooltip(selectionData, tooltip, 'add', (data) => bookmarkManager.addBookmark(data)));
+}*/
+
+
+function test(textSelector, tooltip, tooltipType, callback){
+  const tooltipElement = document.querySelector(".tooltip"); //FIX THIS
+  if (tooltipElement){ 
+    tooltip.removeTooltip(); 
+    return;
+  }
+  const { selectionData } = textSelector.handleTextSelection();
+  
+  document.body.appendChild(createPositionedTooltip(selectionData, tooltip, tooltipType, (data) => callback(data)));
 }

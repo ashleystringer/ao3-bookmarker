@@ -24,23 +24,22 @@ export default class TextSelector {
             const focusParagraph = this.getParentParagraph(focusNode);
 
             if (anchorParagraph !== focusParagraph) return;
-    
-            /*this.tooltip.createPositionedTooltip(selectionObjectRect, tooltipType, selectionObject);
-            console.log(typeof this.tooltip);
-            document.body.appendChild(this.tooltip); */
 
             const selectionData = {
-              anchorNode: selectionObject.anchorNode,
-              focusNode: selectionObject.focusNode,
+              anchorNode: anchorNode,
+              focusNode: focusNode,
               anchorOffset: selectionObject.anchorOffset,              
-              focusOffset: selectionObject.focusOffset,     
+              focusOffset: selectionObject.focusOffset,  
+              parentNodeAnchor: anchorNode.parentNode,  
+              parentNodeFocus: focusNode.parentNode,  
               range: document.getSelection().getRangeAt(0).cloneRange(),          
               selectionObjectRect
             }
 
-            //Idea 
+            console.log("selectionData in handleTextSelection");
+            console.log(selectionData);
+
             return { selectionData };
-            //handle the stuff with tooltip outside of this function
         } 
         getFirstTextNode(node){ //- Save for utils.js?
             // !!!! TEXT SELECTION !!!!

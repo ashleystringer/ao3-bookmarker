@@ -1,4 +1,4 @@
-import { getNodeIndex, getWorkDataFromURL, removeMarkElement, createPositionedTooltip } from '../utils.js'
+import { getNodeIndex, getWorkDataFromURL, removeMarkElement, createPositionedTooltip, test } from '../utils.js'
 import StorageManager  from "./StorageManager";
 
 export default class BookmarkManager {
@@ -16,7 +16,8 @@ export default class BookmarkManager {
           this.tooltip.removeTooltip(bookmarkedText);
         } else if (!bookmarkedText.contains(targetElement) && !tooltipElement && !isSelectionCollapsed) {
           console.log("else if");
-          this.textSelector.handleTextSelection("replace");
+
+          test(this.textSelector, this.tooltip, "replace", (data) => this.replaceBookmark(data))
           }
         }
     async getBookmarkByChapter(){
@@ -35,6 +36,8 @@ export default class BookmarkManager {
       // !!!! BOOKMARK !!!!
       // !!!! TEXT SELECTION !!!!
               
+      console.log("bookmarkByPage in displayBookmark");
+      console.log(bookmarkByPage);
       // Get the parent node of the selection
       const parentNode = document.querySelector(this.textSelector.modifiedParentClass(bookmarkByPage.parentClass));              
                             
@@ -84,8 +87,8 @@ export default class BookmarkManager {
     }
     replaceBookmark(selectionObject){ 
       // !!!! BOOKMARK !!!! 
-      removeBookmark();
-      addBookmark(selectionObject);
+      this.removeBookmark();
+      this.addBookmark(selectionObject);
     }
     removeBookmark(e){
       // !!!! BOOKMARK !!!!
@@ -98,18 +101,20 @@ export default class BookmarkManager {
       removeMarkElement(bookmarkedElement);
               
       this.tooltip.removeTooltip();
-                
+
       // REMOVING THE BOOKMARK FROM LOCAL STORAGE
       
-
       const { workNumber } = getWorkDataFromURL(window.location.href);
-      this.storageManager.remove(workNumber);              
+      this.storageManager.remove(workNumber);  
     }
     async addBookmark(selectionObject){
 
     // !!!! BOOKMARK !!!!
     // !!!! TOOLTIP !!!!
     // !!!! STORAGE !!!!
+
+    console.log("selectionObject in addBookmark");
+    console.log(selectionObject);
               
     let bookmarkByPage = await this.applyBookmarkedText(selectionObject);
     const workNumber = bookmarkByPage.workNumber;
@@ -125,6 +130,8 @@ export default class BookmarkManager {
     // GETTING THE WORK NUMBER AND CHAPTER NUMBER FROM THE URL TO PUT INTO LOCAL STORAGE
               
     this.storageManager.set(workNumber, bookmarkByPage);
+
+    console.log("end of addBookmark");
     }
 
     async applyBookmarkedText(selectionObject){
@@ -144,6 +151,14 @@ export default class BookmarkManager {
         const focusNode = selectionObject.focusNode;
                 
         const commonAncestorNode = selectionObject.range.commonAncestorContainer;
+
+        console.log("selectionObject.range");
+        console.log(selectionObject.range);
+        console.log("commonAncestorNode.contains(anchorNode)");
+        console.log(commonAncestorNode.contains(selectionObject.anchorNode));
+        console.log("commonAncestorNode.contains(focusNode)");
+        console.log(commonAncestorNode.contains(selectionObject.focusNode));
+
         if(commonAncestorNode.nodeName === "P" || commonAncestorNode.contains(anchorNode) && commonAncestorNode.contains(focusNode)){
               
           //if anchorNode and focusNode are nodes other than text nodes
@@ -168,7 +183,8 @@ export default class BookmarkManager {
 
             this.createBookmarkElement(range, (e) => this.handleBookmarkSelection(e)); //this.createBookmarkElement(range, this.handleBookmarkSelection);
             }
-              
+             
+            console.log("before workNumber");
             const { workNumber, urlChapterNumber, pageChapterNumber } = getWorkDataFromURL(window.location.href);
               
             const authorName = document.querySelector(".byline").querySelector("a").textContent;
@@ -191,15 +207,18 @@ export default class BookmarkManager {
               
             return selectedTextByPage;
             }
+
+            console.log("after giant if statement");
     }
     async calculateSelectionData(selection) {
 
-          // FIGURE THIS OUT
+            console.log("calculateSelectionData");
 
             const bookmarkedText = document.querySelector(".bookmarkedText");
               
-            let anchorNodeIndex = getNodeIndex(selection.anchorNode); //Subject to deletion
-            let focusNodeIndex = getNodeIndex(selection.focusNode); //Subject to deletion
+            console.log(selection.range.startContainer.parentNode);
+            let anchorNodeIndex = getNodeIndex(selection.range.startContainer); //selection.anchorNode
+            let focusNodeIndex = getNodeIndex(selection.range.endContainer); //selection.focusNode
                 
             const shouldRecalculate = (bookmarkedText !== null) 
               && (bookmarkedText.closest("P") === selection.anchorNode.parentNode.closest('P'))
